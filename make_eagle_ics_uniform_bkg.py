@@ -36,7 +36,9 @@ def make_eagle_ics_dmo_uniform_bkg(
     # Get the metadata
     meta = hdf["Header"]
     print(meta.attrs.keys())
-    boxsize = meta.attrs["BoxSize"][...]
+    boxsize = meta.attrs["BoxSize"]
+    time = meta.attrs["Time"]
+    print(time)
 
     # Read the dark matter coordinates, velocities and masses
     pos = hdf["PartType1"]["Coordinates"][...]
@@ -45,7 +47,7 @@ def make_eagle_ics_dmo_uniform_bkg(
 
     # Grid the masses to find the densest grid point
     grid = np.zeros((ngrid, ngrid, ngrid))
-    cell_width = boxsize[0] / ngrid
+    cell_width = boxsize / ngrid
 
     # Populate the grid with the dark matter particles
     for p in range(masses.size):
