@@ -1,3 +1,4 @@
+import h5py
 import argparse
 import numpy as np
 
@@ -30,17 +31,17 @@ def make_eagle_ics_dmo_uniform_bkg(
         region_rad (float): The radius of the region to carve out.
     """
     # Load the EAGLE data
-    data = load(input_file)
+    hdf = h5py.File(input_file, "r")
 
     # Get the metadata
-    meta = data.metadata
-    boxsize = meta.boxsize
-    print(meta.field_names)
+    meta = hdf["Header"]
+    print(meta.keys())
+    boxsize = meta["BoxSize"][...]
 
     # Read the dark matter coordinates, velocities and masses
-    pos = data.dark_matter.coordinates
-    masses = data.dark_matter.masses
-    vels = data.dark_matter.velocities
+    pos = hdf["PartType1"]["Coordinates"][...]
+    masses = hdf["PartType1"]["Masses"][...]
+    vels = hdf["PartType1"]["Velocities"][...]
 
     # Grid the masses to find the densest grid point
     grid = np.zeros((ngrid, ngrid, ngrid))
