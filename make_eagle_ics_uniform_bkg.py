@@ -35,8 +35,8 @@ def make_eagle_ics_dmo_uniform_bkg(
 
     # Get the metadata
     meta = hdf["Header"]
-    print(meta.keys())
-    boxsize = meta["BoxSize"][...]
+    print(meta.attrs.keys())
+    boxsize = meta.attrs["BoxSize"][...]
 
     # Read the dark matter coordinates, velocities and masses
     pos = hdf["PartType1"]["Coordinates"][...]
