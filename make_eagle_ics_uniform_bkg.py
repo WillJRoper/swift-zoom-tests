@@ -134,7 +134,6 @@ if __name__ == "__main__":
     ngrid = args.ngrid
     bkg_ngrid = args.bkg_ngrid
     input_file = args.input_file
-    out_file = args.output_file
 
     out_file = (
         f"ics/{args.output_basename}_rad{region_rad}_bkg{bkg_ngrid}.hdf5"
