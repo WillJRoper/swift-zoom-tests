@@ -8,11 +8,6 @@ from swiftsimio import Writer
 from swiftsimio.units import cosmo_units
 import swiftsimio.metadata.particle as swp
 
-# Add background particles to swiftsimio
-swp.particle_name_underscores[6] = "dark_matter_bkg"
-swp.particle_name_class[6] = "PartType2"
-swp.particle_name_text[6] = "PartType2"
-
 
 def make_eagle_ics_dmo_uniform_bkg(
     input_file,
