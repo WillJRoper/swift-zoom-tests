@@ -91,12 +91,16 @@ def make_eagle_ics_dmo_uniform_bkg(
         np.sum(masses[~mask]) / bkg_ngrid**3
     )
 
-    ics.dark_matter_bkg.coordinates = bkg_pos * Mpc
-    ics.dark_matter_bkg.velocities = bkg_vels * km / s
-    ics.dark_matter_bkg.masses = bkg_masses * 10**10 * Msun
-
     # Write the ICs
     ics.write(output_file)
+
+    # Write the background separately
+    hdf = h5py.File(output_file)
+    grp = hdf.create_group("PartType2")
+    grp.create_dataset("Coordinates", data=bkg_pos)
+    grp.create_dataset("Velocities", data=bkg_vels)
+    grp.create_dataset("Masses", data=bkg_masses)
+    hdf.close()
 
     return grid, pos, bkg_pos
 
