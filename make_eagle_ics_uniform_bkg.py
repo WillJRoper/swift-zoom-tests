@@ -2,8 +2,8 @@ import h5py
 from tqdm import tqdm
 import argparse
 import numpy as np
+from unyt import Mpc, km, s, Msun
 
-from swiftsimio import load
 from swiftsimio import Writer
 from swiftsimio.units import cosmo_units
 import swiftsimio.metadata.particle as swp
@@ -36,7 +36,6 @@ def make_eagle_ics_dmo_uniform_bkg(
 
     # Get the metadata
     meta = hdf["Header"]
-    print(meta.attrs.keys())
     boxsize = meta.attrs["BoxSize"]
 
     # Read the dark matter coordinates, velocities and masses
@@ -69,12 +68,16 @@ def make_eagle_ics_dmo_uniform_bkg(
     new_masses = masses[mask]
 
     # Set up the IC writer
-    ics = Writer(cosmo_units, boxsize, dimension=3)
+    ics = Writer(
+        cosmo_units,
+        np.array((boxsize, boxsize, boxsize)) * Mpc,
+        dimension=3,
+    )
 
     # Write the dark matter particles
-    ics.dark_matter.coordinates = new_pos
-    ics.dark_matter.velocities = new_vels
-    ics.dark_matter.masses = new_masses
+    ics.dark_matter.coordinates = new_pos * Mpc
+    ics.dark_matter.velocities = new_vels * km / s
+    ics.dark_matter.masses = new_masses * 10**10 * Msun
 
     # Add the background particles
     xx, yy, zz = np.meshgrid(
@@ -88,9 +91,9 @@ def make_eagle_ics_dmo_uniform_bkg(
         np.sum(masses[~mask]) / bkg_ngrid**3
     )
 
-    ics.dark_matter_bkg.coordinates = bkg_pos
-    ics.dark_matter_bkg.velocities = bkg_vels
-    ics.dark_matter_bkg.masses = bkg_masses
+    ics.dark_matter_bkg.coordinates = bkg_pos * Mpc
+    ics.dark_matter_bkg.velocities = bkg_vels * km / s
+    ics.dark_matter_bkg.masses = bkg_masses * 10**10 * Msun
 
     # Write the ICs
     ics.write(output_file)
