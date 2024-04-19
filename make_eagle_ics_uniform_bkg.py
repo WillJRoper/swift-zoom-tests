@@ -100,29 +100,29 @@ if __name__ == "__main__":
     # Set up the command line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "input_file",
+        "--input_file",
         type=str,
         help="The path to the input file.",
     )
     parser.add_argument(
-        "output_basename",
+        "--output_basename",
         type=str,
         help="The path to the output file.",
     )
     parser.add_argument(
-        "ngrid",
+        "--ngrid",
         type=int,
         help="The number of grid cells along each dimension.",
         default=32,
     )
     parser.add_argument(
-        "bkg_ngrid",
+        "--bkg_ngrid",
         type=int,
         help="The number of background particles per dimension.",
         default=64,
     )
     parser.add_argument(
-        "region_rad",
+        "--region_rad",
         type=float,
         help="The radius of the region to carve out.",
         default=5,
