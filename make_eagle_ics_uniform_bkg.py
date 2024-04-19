@@ -1,4 +1,5 @@
 import h5py
+from tqdm import tqdm
 import argparse
 import numpy as np
 
@@ -37,8 +38,6 @@ def make_eagle_ics_dmo_uniform_bkg(
     meta = hdf["Header"]
     print(meta.attrs.keys())
     boxsize = meta.attrs["BoxSize"]
-    time = meta.attrs["Time"]
-    print(time)
 
     # Read the dark matter coordinates, velocities and masses
     pos = hdf["PartType1"]["Coordinates"][...]
@@ -50,7 +49,7 @@ def make_eagle_ics_dmo_uniform_bkg(
     cell_width = boxsize / ngrid
 
     # Populate the grid with the dark matter particles
-    for p in range(masses.size):
+    for p in tqdm(range(masses.size)):
         # Compute the grid cell for this particle
         i = int(pos[p, 0] / cell_width)
         j = int(pos[p, 1] / cell_width)
