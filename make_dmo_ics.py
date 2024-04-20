@@ -386,11 +386,11 @@ def make_ics_dmo(
     # Make the background particles
     if uniform_bkg:
         bkg_pos, bkg_masses, bkg_vels, boxsize = make_bkg_uniform(
-            boxsize, bkg_ngrid, replicate, rho, new_masses, region_rad
+            boxsize, bkg_ngrid, rho, new_masses, region_rad
         )
     else:
         bkg_pos, bkg_masses, bkg_vels, boxsize = make_bkg_gradient(
-            boxsize, bkg_ngrid, replicate, rho, new_masses, region_rad
+            boxsize, bkg_ngrid, rho, new_masses, region_rad
         )
 
     print(f"Added {bkg_pos.shape[0]} background particles.")
