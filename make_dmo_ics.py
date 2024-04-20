@@ -165,8 +165,11 @@ def make_bkg_gradient(
     # Generate grids of background particles in shells to create a gradient
     grid_radius = region_rad * 2
     bkg_poss = []
-    while grid_radius < boxsize:
-        print("Generating background particles within:", grid_radius)
+    ngen = 0
+    while grid_radius < new_boxsize:
+        print(
+            f"Generating background particles within {grid_radius}. Currently have {ngen}"
+        )
 
         grid_pos, _, _, _ = make_bkg_uniform(
             boxsize / 2 + grid_radius,
@@ -193,6 +196,7 @@ def make_bkg_gradient(
 
         # Add the grid to the list
         bkg_poss.append(grid_pos)
+        ngen += grid_pos.shape[0]
 
         grid_radius *= 2
 
