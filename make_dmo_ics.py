@@ -94,7 +94,9 @@ def carve_out_region(pos, masses, vels, region_rad, max_pos, boxsize):
     return new_pos, new_masses, new_vels, pos
 
 
-def make_bkg_uniform(boxsize, bkg_ngrid, replicate, rho, new_masses):
+def make_bkg_uniform(
+    boxsize, bkg_ngrid, replicate, rho, new_masses, region_rad
+):
     """
     Generate a uniform background of particles.
 
@@ -104,6 +106,7 @@ def make_bkg_uniform(boxsize, bkg_ngrid, replicate, rho, new_masses):
         replicate (int): The number of times to replicate the box.
         rho (float): The mass density of the dark matter particles.
         new_masses (np.ndarray): The masses of the dark matter particles.
+        region_rad (float): The radius of the region to carve out.
 
     Returns:
         np.ndarray: The positions of the background particles.
@@ -179,10 +182,12 @@ def make_bkg_gradient(
             1,
             rho,
             new_masses,
+            region_rad,
         )
 
         # Add some randomness
         grid_pos += np.random.uniform(-0.1, 0.1, grid_pos.shape)
+        print(grid_pos.shape)
 
         # Remove any particles inside the zoom region
         mask = np.linalg.norm(grid_pos - (boxsize / 2), axis=1) > region_rad
@@ -205,7 +210,7 @@ def make_bkg_gradient(
 
         grid_radius *= 2
 
-    print(f"Limiting to {bkg_ngrid**3} witha random selection")
+    print(f"Limiting to {bkg_ngrid**3} with a random selection")
 
     # Now choose bkg_ngrid**3 particles randomly
     bkg_pos = np.concatenate(bkg_poss)
@@ -366,20 +371,11 @@ def make_ics_dmo(
     # Make the background particles
     if uniform_bkg:
         bkg_pos, bkg_masses, bkg_vels, boxsize = make_bkg_uniform(
-            boxsize,
-            bkg_ngrid,
-            replicate,
-            rho,
-            new_masses,
+            boxsize, bkg_ngrid, replicate, rho, new_masses, region_rad
         )
     else:
         bkg_pos, bkg_masses, bkg_vels, boxsize = make_bkg_gradient(
-            boxsize,
-            bkg_ngrid,
-            replicate,
-            rho,
-            new_masses,
-            region_rad,
+            boxsize, bkg_ngrid, replicate, rho, new_masses, region_rad
         )
 
     print(f"Added {bkg_pos.shape[0]} background particles.")
