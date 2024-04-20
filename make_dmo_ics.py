@@ -94,7 +94,7 @@ def carve_out_region(pos, masses, vels, region_rad, max_pos, boxsize):
     return new_pos, new_masses, new_vels
 
 
-def make_bkg(boxsize, bkg_ngrid, replicate, rho, new_masses):
+def make_bkg_uniform(boxsize, bkg_ngrid, replicate, rho, new_masses):
     """
     Generate a uniform background of particles.
 
@@ -130,61 +130,83 @@ def make_bkg(boxsize, bkg_ngrid, replicate, rho, new_masses):
     return bkg_pos, bkg_masses, bkg_vels
 
 
-def squeeze_bkg(bkg_pos, max_pos, bkg_masses, boxsize, bkg_ngrid, region_rad):
+def make_bkg_gradient(
+    boxsize, bkg_ngrid, replicate, rho, new_masses, region_rad
+):
     """
-    Squeeze the background particles towards the high resolution region.
+    Generate background particles with a number density gradient.
 
     Args:
-        bkg_pos (np.ndarray): The positions of the background particles.
-        max_pos (np.ndarray): The position of the high resolution region.
-        bkg_masses (np.ndarray): The masses of the background particles.
         boxsize (float): The size of the simulation box.
         bkg_ngrid (int): The number of background particles per dimension.
-        region_rad (float): The radius of the region to carve out.
+        replicate (int): The number of times to replicate the box.
+        rho (float): The mass density of the dark matter particles.
+        new_masses (np.ndarray): The masses of the dark matter particles.
+        region_rad (float): The radius of the high resolution region.
 
     Returns:
-        np.ndarray: The new positions of the background particles.
-        np.ndarray: The new masses of the background particles.
+        np.ndarray: The positions of the background particles.
+        np.ndarray: The masses of the background particles.
+        np.ndarray: The velocities of the background particles.
     """
-    # Calculate vector from each position to max_pos and distances
-    vectors_to_max = max_pos - bkg_pos
-    distances = np.linalg.norm(vectors_to_max, axis=1)
+    # Replicate the box if needed
+    boxsize *= replicate
+    bkg_ngrid *= replicate
 
-    # Define the spherical shell adjustment
-    # We move particles closer to the sphere at radius 'region_rad'
-    # but not inside it
-    desired_distances = np.clip(
-        distances, region_rad, None
-    )  # Ensure particles stay outside the sphere
-    move_factors = 1 - np.exp(
-        -(distances - region_rad) / (boxsize / bkg_ngrid)
-    )  # Scale factor
-    move_factors[
-        distances <= region_rad
-    ] = 0  # No movement for particles already inside the sphere
+    # Compute the total mass needed for the background particles
+    total_mass = rho * boxsize**3 - np.sum(new_masses)
 
-    # Normalize vectors and scale by move_factors to adjust positions
-    # towards the spherical shell
-    normalized_vectors = vectors_to_max / distances[:, np.newaxis]
-    new_positions = (
-        bkg_pos
-        + normalized_vectors
-        * move_factors[:, np.newaxis]
-        * (desired_distances - distances)[:, np.newaxis]
-    )
+    # Define the background particle positions
+    bkg_pos = np.zeros((bkg_ngrid**3, 3))
+    mask = np.ones(bkg_ngrid**3, dtype=bool)
 
-    # Update positions
-    bkg_pos = new_positions
+    # Loop until we've generated all the particles to be outside the zoom region
+    while mask.any():
+        # How many positions do we need to generate?
+        nbkg = mask.sum()
+
+        # Generate random points in the bounding cube
+        r = np.random.normal(
+            boxsize / 2 + region_rad,
+            boxsize / 3,
+            nbkg,
+        )
+        theta = np.random.uniform(0, np.pi, nbkg)
+        phi = np.random.uniform(0, 2 * np.pi, nbkg)
+
+        # Convert spherical to Cartesian coordinates
+        x = r * np.sin(theta) * np.cos(phi)
+        y = r * np.sin(theta) * np.sin(phi)
+        z = r * np.cos(theta)
+
+        # Assign the positions
+        bkg_pos[mask] = np.stack((x, y, z), axis=1)
+
+        # Update the mask
+        mask = np.linalg.norm(bkg_pos - (boxsize / 2), axis=1) < region_rad
+        mask = np.logical_and(mask, bkg_pos[:, 0] >= 0)
+        mask = np.logical_and(mask, bkg_pos[:, 1] >= 0)
+        mask = np.logical_and(mask, bkg_pos[:, 2] >= 0)
+        mask = np.logical_and(mask, bkg_pos[:, 0] <= boxsize)
+        mask = np.logical_and(mask, bkg_pos[:, 1] <= boxsize)
+        mask = np.logical_and(mask, bkg_pos[:, 2] <= boxsize)
+
+    # Define background velocities
+    bkg_vels = np.zeros((bkg_ngrid**3, 3))
+
+    # Define background masses
+    bkg_masses = np.ones(bkg_ngrid**3) * (total_mass / bkg_ngrid**3)
+
+    # Define distances of particles ready to scale the masses
+    dist = np.linalg.norm(bkg_pos - (boxsize / 2), axis=1)
 
     # Adjust the mass to keep mass density constant
     # Since more particles will be closer to max_pos, reduce their mass
     # inversely proportional to increased number density
-    mass_scale_factors = np.exp(
-        -distances / (boxsize / bkg_ngrid)
-    )  # inverse of position scaling to reduce mass as density increases
+    mass_scale_factors = np.exp(-dist / (boxsize / bkg_ngrid))
     bkg_masses *= mass_scale_factors
 
-    return bkg_pos, bkg_masses
+    return bkg_pos, bkg_masses, bkg_vels
 
 
 def write_ics(
@@ -318,26 +340,25 @@ def make_ics_dmo(
     print(f"Carved out {new_pos.shape[0]} particles.")
 
     # Make the background particles
-    bkg_pos, bkg_masses, bkg_vels = make_bkg(
-        boxsize,
-        bkg_ngrid,
-        replicate,
-        rho,
-        new_masses,
-    )
-
-    print(f"Added {bkg_pos.shape[0]} background particles.")
-
-    # Modify the background grid to be a gradient towards the zoom region
-    if not uniform_bkg:
-        bkg_pos, bkg_masses = squeeze_bkg(
-            bkg_pos,
-            max_pos,
-            bkg_masses,
+    if uniform_bkg:
+        bkg_pos, bkg_masses, bkg_vels = make_bkg_uniform(
             boxsize,
             bkg_ngrid,
+            replicate,
+            rho,
+            new_masses,
+        )
+    else:
+        bkg_pos, bkg_masses, bkg_vels = make_bkg_gradient(
+            boxsize,
+            bkg_ngrid,
+            replicate,
+            rho,
+            new_masses,
             region_rad,
         )
+
+    print(f"Added {bkg_pos.shape[0]} background particles.")
 
     # Write the ICs
     write_ics(
