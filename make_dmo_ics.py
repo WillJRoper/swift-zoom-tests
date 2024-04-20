@@ -165,12 +165,12 @@ def make_bkg_gradient(
         # How many positions do we need to generate?
         nbkg = mask.sum()
 
-        print(f"Generating background particles... {nbkg} to go..")
+        print(f"Generating background particles... {nbkg} to go...")
 
         # Generate random points in the bounding cube
         r = np.random.normal(
-            boxsize / 2 + region_rad,
-            boxsize / 3,
+            boxsize / 2,
+            region_rad,
             nbkg,
         )
         theta = np.random.uniform(0, np.pi, nbkg)
@@ -186,12 +186,12 @@ def make_bkg_gradient(
 
         # Update the mask
         mask = np.linalg.norm(bkg_pos - (boxsize / 2), axis=1) < region_rad
-        mask = np.logical_and(mask, bkg_pos[:, 0] >= 0)
-        mask = np.logical_and(mask, bkg_pos[:, 1] >= 0)
-        mask = np.logical_and(mask, bkg_pos[:, 2] >= 0)
-        mask = np.logical_and(mask, bkg_pos[:, 0] <= boxsize)
-        mask = np.logical_and(mask, bkg_pos[:, 1] <= boxsize)
-        mask = np.logical_and(mask, bkg_pos[:, 2] <= boxsize)
+        mask = np.logical_and(mask, bkg_pos[:, 0] < 0)
+        mask = np.logical_and(mask, bkg_pos[:, 1] < 0)
+        mask = np.logical_and(mask, bkg_pos[:, 2] < 0)
+        mask = np.logical_and(mask, bkg_pos[:, 0] > boxsize)
+        mask = np.logical_and(mask, bkg_pos[:, 1] > boxsize)
+        mask = np.logical_and(mask, bkg_pos[:, 2] > boxsize)
 
     # Define background velocities
     bkg_vels = np.zeros((bkg_ngrid**3, 3))
