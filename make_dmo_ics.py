@@ -156,9 +156,21 @@ def make_bkg_gradient(
     # Compute the total mass needed for the background particles
     total_mass = rho * boxsize**3 - np.sum(new_masses)
 
+    # Make a uniform grid for half the particles
+    grid_pos, _, _ = make_bkg_uniform(
+        boxsize,
+        bkg_ngrid // 2,
+        replicate,
+        rho,
+        new_masses,
+    )
     # Define the background particle positions
     bkg_pos = np.zeros((bkg_ngrid**3, 3))
+    bkg_pos[: grid_pos.shape[0], 0] = grid_pos[:, 0]
+    bkg_pos[: grid_pos.shape[0], 1] = grid_pos[:, 1]
+    bkg_pos[: grid_pos.shape[0], 2] = grid_pos[:, 2]
     mask = np.ones(bkg_ngrid**3, dtype=bool)
+    mask[: grid_pos.shape[0]] = False
 
     # Loop until we've generated all the particles to be outside the zoom region
     while mask.any():
