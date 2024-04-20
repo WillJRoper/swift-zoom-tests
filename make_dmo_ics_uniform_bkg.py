@@ -1,3 +1,21 @@
+"""A script to generate DMO initial conditions.
+
+This is done by carving out the densest region in the simulation box and
+treating that as the high resolution region. The rest of the box is filled
+with a uniform background of particles.
+
+The box can be optionally replicated in each dimension to simulate different
+zoom scenarios.
+
+Example:
+    $ python make_dmo_ics_uniform_bkg.py \
+        --input_file /path/to/input.hdf5 \
+        --output_basename output \
+        --ngrid 32 \
+        --bkg_ngrid 64 \
+        --region_rad 5 \
+        --replicate 1
+"""
 import h5py
 from tqdm import tqdm
 import argparse
@@ -6,7 +24,6 @@ from unyt import Mpc, km, s, Msun
 
 from swiftsimio import Writer
 from swiftsimio.units import cosmo_units
-import swiftsimio.metadata.particle as swp
 
 
 def make_eagle_ics_dmo_uniform_bkg(
@@ -152,7 +169,10 @@ if __name__ == "__main__":
     input_file = args.input_file
     replicate = args.replicate
 
-    out_file = f"ics/{args.output_basename}_rad{region_rad}_bkg{bkg_ngrid}_replicate{replicate}.hdf5"
+    out_file = (
+        f"ics/{args.output_basename}_rad{region_rad}_"
+        f"bkg{bkg_ngrid}_replicate{replicate}.hdf5"
+    )
 
     grid, high_res_pos, bkg_pos = make_eagle_ics_dmo_uniform_bkg(
         input_file,
