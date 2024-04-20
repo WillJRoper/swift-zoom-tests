@@ -233,11 +233,9 @@ def make_bkg_gradient(
     # Define distances of particles ready to scale the masses
     dist = np.linalg.norm(bkg_pos - (boxsize / 2), axis=1)
 
-    # Adjust the mass to keep mass density constant
-    # Since more particles will be closer to max_pos, reduce their mass
-    # inversely proportional to increased number density
-    mass_scale_factors = np.exp(-dist / (new_boxsize / bkg_ngrid))
-    bkg_masses *= mass_scale_factors
+    # Scale the masses to decrease towards the zoom region
+    bkg_masses = bkg_masses * (1 - dist / (boxsize / 2))
+    bkg_masses /= np.sum(bkg_masses) * total_mass
 
     return bkg_pos, bkg_masses, bkg_vels, new_boxsize
 
