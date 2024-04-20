@@ -87,7 +87,7 @@ def carve_out_region(
 
     # Shift positions to centre on max_pos
     pos -= max_pos
-    pos = (pos + boxsize) % boxsize
+    pos = (pos + boxsize / 2) % boxsize
 
     # Mask out particles outside the region_rad from max_pos
     mask = np.linalg.norm(pos - (boxsize / 2), axis=1) <= region_rad
