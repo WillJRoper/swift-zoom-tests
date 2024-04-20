@@ -82,7 +82,7 @@ def carve_out_region(pos, masses, vels, region_rad, max_pos, boxsize):
     """
     # Shift positions to centre on max_pos
     pos -= max_pos
-    pos += boxsize
+    pos += boxsize / 2
     pos %= boxsize
 
     # Mask out particles outside the region_rad from max_pos
