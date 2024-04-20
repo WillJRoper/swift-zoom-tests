@@ -423,7 +423,7 @@ if __name__ == "__main__":
             f"bkg{bkg_ngrid}_replicate{replicate}.hdf5"
         )
 
-    grid, high_res_pos, bkg_pos = make_ics_dmo(
+    make_ics_dmo(
         input_file,
         out_file,
         ngrid,
