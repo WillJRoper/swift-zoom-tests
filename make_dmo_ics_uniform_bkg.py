@@ -33,6 +33,7 @@ def make_eagle_ics_dmo_uniform_bkg(
     bkg_ngrid,
     region_rad,
     replicate,
+    little_h=0.6777,
 ):
     """
     Generate DMO ics by carving out the densest region in the simulation box.
@@ -50,12 +51,14 @@ def make_eagle_ics_dmo_uniform_bkg(
 
     # Get the metadata
     meta = hdf["Header"]
-    boxsize = meta.attrs["BoxSize"]
+    boxsize = meta.attrs["BoxSize"] / little_h
 
     # Read the dark matter coordinates, velocities and masses
-    pos = hdf["PartType1"]["Coordinates"][...]
+    pos = hdf["PartType1"]["Coordinates"][...] / little_h
     masses = hdf["PartType1"]["Masses"][...]
     vels = hdf["PartType1"]["Velocities"][...]
+
+    print(f"Loaded {pos.shape[0]} dark matter particles.")
 
     # Grid the masses to find the densest grid point
     grid = np.zeros((ngrid, ngrid, ngrid))
@@ -81,6 +84,8 @@ def make_eagle_ics_dmo_uniform_bkg(
     new_vels = vels[mask]
     new_masses = masses[mask]
 
+    print(f"Carved out {new_pos.shape[0]} particles.")
+
     # Replicate the box if needed
     boxsize *= replicate
     bkg_ngrid *= replicate
@@ -96,6 +101,8 @@ def make_eagle_ics_dmo_uniform_bkg(
     bkg_masses = np.ones(bkg_ngrid**3) * (
         np.sum(masses[~mask]) / bkg_ngrid**3
     )
+
+    print(f"Added {bkg_pos.shape[0]} background particles.")
 
     # Set up the IC writer
     ics = Writer(
@@ -115,9 +122,16 @@ def make_eagle_ics_dmo_uniform_bkg(
     # Write the background separately
     hdf = h5py.File(output_file, "r+")
     grp = hdf.create_group("PartType2")
-    grp.create_dataset("Coordinates", data=bkg_pos)
-    grp.create_dataset("Velocities", data=bkg_vels)
-    grp.create_dataset("Masses", data=bkg_masses)
+    grp.create_dataset("Coordinates", data=bkg_pos, compression="gzip")
+    grp.create_dataset("Velocities", data=bkg_vels, compression="gzip")
+    grp.create_dataset("Masses", data=bkg_masses, compression="gzip")
+
+    # Update the metadata
+    hdf["Header"].attrs["NumPart_ThisFile"][2] = bkg_masses.size
+    hdf["Header"].attrs["NumPart_Total"][2] = bkg_masses.size
+    hdf["Header"].attrs["NumPart_Total_HighWord"][2] = 0
+    hdf["Header"].attrs["MassTable"][2] = bkg_masses[0]
+
     hdf.close()
 
     return grid, pos, bkg_pos
@@ -160,6 +174,12 @@ if __name__ == "__main__":
         help="The number of times to replicate the box.",
         default=1,
     )
+    parser.add_argument(
+        "--little_h",
+        type=float,
+        help="The value of little h.",
+        default=0.6777,
+    )
 
     args = parser.parse_args()
 
@@ -168,6 +188,7 @@ if __name__ == "__main__":
     bkg_ngrid = args.bkg_ngrid
     input_file = args.input_file
     replicate = args.replicate
+    little_h = args.little_h
 
     out_file = (
         f"ics/{args.output_basename}_rad{region_rad}_"
@@ -181,4 +202,5 @@ if __name__ == "__main__":
         bkg_ngrid,
         region_rad,
         replicate,
+        little_h=little_h,
     )
