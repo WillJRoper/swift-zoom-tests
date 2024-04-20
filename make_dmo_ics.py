@@ -351,8 +351,6 @@ def make_ics_dmo(
         boxsize,
     )
 
-    return grid, pos, bkg_pos
-
 
 if __name__ == "__main__":
     # Set up the command line arguments
