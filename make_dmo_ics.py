@@ -168,6 +168,7 @@ def make_bkg_gradient(
 
     # Compute the total mass needed for the background particles
     total_mass = rho * new_boxsize**3 - np.sum(new_masses)
+    total_mass *= 10**10
 
     # Generate grids of background particles in shells to create a gradient
     grid_radius = region_rad * 2
@@ -235,7 +236,7 @@ def make_bkg_gradient(
     # Adjust the mass to keep mass density constant
     # Since more particles will be closer to max_pos, reduce their mass
     # inversely proportional to increased number density
-    mass_scale_factors = np.exp(-dist / (boxsize / bkg_ngrid))
+    mass_scale_factors = np.exp(-dist / (new_boxsize / bkg_ngrid))
     bkg_masses *= mass_scale_factors
 
     return bkg_pos, bkg_masses, bkg_vels, new_boxsize
