@@ -91,7 +91,7 @@ def carve_out_region(pos, masses, vels, region_rad, max_pos, boxsize):
     new_vels = vels[mask]
     new_masses = masses[mask]
 
-    return new_pos, new_masses, new_vels
+    return new_pos, new_masses, new_vels, pos
 
 
 def make_bkg_uniform(boxsize, bkg_ngrid, replicate, rho, new_masses):
@@ -184,8 +184,8 @@ def make_bkg_gradient(
         grid_pos += np.random.uniform(-0.1, 0.1, grid_pos.shape)
 
         # Remove any particles inside the zoom region
-        mask = np.linalg.norm(grid_pos - (boxsize / 2), axis=1) < region_rad
-        grid_pos = grid_pos[~mask]
+        mask = np.linalg.norm(grid_pos - (boxsize / 2), axis=1) > region_rad
+        grid_pos = grid_pos[mask]
 
         # Remove any particles outside the box
         mask = np.logical_or(grid_pos[:, 0] < 0, grid_pos[:, 1] < 0)
@@ -344,7 +344,7 @@ def make_ics_dmo(
 
     # Carve out the high resolution region
     if subset:
-        new_pos, new_masses, new_vels = carve_out_region(
+        new_pos, new_masses, new_vels, pos = carve_out_region(
             pos,
             masses,
             vels,
