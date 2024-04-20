@@ -178,7 +178,7 @@ def make_bkg_gradient(
 
         grid_pos, _, _, _ = make_bkg_uniform(
             boxsize / 2 + grid_radius,
-            bkg_ngrid // (new_boxsize / (boxsize / 2 + grid_radius)) + 2,
+            int(bkg_ngrid // (new_boxsize / (boxsize / 2 + grid_radius)) + 2),
             1,
             rho,
             new_masses,
