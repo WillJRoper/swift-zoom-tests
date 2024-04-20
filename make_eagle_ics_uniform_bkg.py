@@ -15,6 +15,7 @@ def make_eagle_ics_dmo_uniform_bkg(
     ngrid,
     bkg_ngrid,
     region_rad,
+    replicate,
 ):
     """
     Generate DMO ics by carving out the densest region in the simulation box.
@@ -25,6 +26,7 @@ def make_eagle_ics_dmo_uniform_bkg(
         ngrid (int): The number of grid cells along each dimension.
         bkg_ngrid (int): The number of background particles per dimension.
         region_rad (float): The radius of the region to carve out.
+        replicate (int): The number of times to replicate the box.
     """
     # Load the EAGLE data
     hdf = h5py.File(input_file, "r")
@@ -62,17 +64,9 @@ def make_eagle_ics_dmo_uniform_bkg(
     new_vels = vels[mask]
     new_masses = masses[mask]
 
-    # Set up the IC writer
-    ics = Writer(
-        cosmo_units,
-        np.array((boxsize, boxsize, boxsize)) * Mpc,
-        dimension=3,
-    )
-
-    # Write the dark matter particles
-    ics.dark_matter.coordinates = new_pos * Mpc
-    ics.dark_matter.velocities = new_vels * km / s
-    ics.dark_matter.masses = new_masses * 10**10 * Msun
+    # Replicate the box if needed
+    boxsize *= replicate
+    bkg_ngrid *= replicate
 
     # Add the background particles
     xx, yy, zz = np.meshgrid(
@@ -85,6 +79,18 @@ def make_eagle_ics_dmo_uniform_bkg(
     bkg_masses = np.ones(bkg_ngrid**3) * (
         np.sum(masses[~mask]) / bkg_ngrid**3
     )
+
+    # Set up the IC writer
+    ics = Writer(
+        cosmo_units,
+        np.array((boxsize, boxsize, boxsize)) * Mpc,
+        dimension=3,
+    )
+
+    # Write the dark matter particles
+    ics.dark_matter.coordinates = new_pos * Mpc
+    ics.dark_matter.velocities = new_vels * km / s
+    ics.dark_matter.masses = new_masses * 10**10 * Msun
 
     # Write the ICs
     ics.write(output_file)
@@ -131,6 +137,12 @@ if __name__ == "__main__":
         help="The radius of the region to carve out.",
         default=5,
     )
+    parser.add_argument(
+        "--replicate",
+        type=int,
+        help="The number of times to replicate the box.",
+        default=1,
+    )
 
     args = parser.parse_args()
 
@@ -138,10 +150,9 @@ if __name__ == "__main__":
     ngrid = args.ngrid
     bkg_ngrid = args.bkg_ngrid
     input_file = args.input_file
+    replicate = args.replicate
 
-    out_file = (
-        f"ics/{args.output_basename}_rad{region_rad}_bkg{bkg_ngrid}.hdf5"
-    )
+    out_file = f"ics/{args.output_basename}_rad{region_rad}_bkg{bkg_ngrid}_replicate{replicate}.hdf5"
 
     grid, high_res_pos, bkg_pos = make_eagle_ics_dmo_uniform_bkg(
         input_file,
@@ -149,4 +160,5 @@ if __name__ == "__main__":
         ngrid,
         bkg_ngrid,
         region_rad,
+        replicate,
     )
