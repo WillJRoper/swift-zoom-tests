@@ -351,15 +351,16 @@ def make_ics_dmo(
     # Replicate the box if needed
     boxsize *= replicate
     bkg_ngrid *= replicate
+    ngrid *= replicate
 
     # Centre the positions in the new boxsize
-    pos += boxsize / 2
+    pos -= boxsize / 2
     pos = (pos + boxsize) % boxsize
 
     # Get the position of the peak density (or the centre of the box if
     # region_rad exncompasses the entire box).
     if subset:
-        max_pos = get_max_pos(pos, masses, ngrid * replicate, boxsize)
+        max_pos = get_max_pos(pos, masses, ngrid, boxsize)
     else:
         max_pos = np.array([boxsize / 2, boxsize / 2, boxsize / 2])
 
