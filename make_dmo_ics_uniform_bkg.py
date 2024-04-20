@@ -60,6 +60,9 @@ def make_eagle_ics_dmo_uniform_bkg(
 
     print(f"Loaded {pos.shape[0]} dark matter particles.")
 
+    # Calculate the mass density
+    rho = np.sum(masses) / boxsize**3
+
     # Grid the masses to find the densest grid point
     grid = np.zeros((ngrid, ngrid, ngrid))
     cell_width = boxsize / ngrid
@@ -90,6 +93,9 @@ def make_eagle_ics_dmo_uniform_bkg(
     boxsize *= replicate
     bkg_ngrid *= replicate
 
+    # Compute the total mass needed for the background particles
+    total_mass = rho * boxsize**3 - np.sum(new_masses)
+
     # Add the background particles
     xx, yy, zz = np.meshgrid(
         np.linspace(0, boxsize, bkg_ngrid),
@@ -98,9 +104,7 @@ def make_eagle_ics_dmo_uniform_bkg(
     )
     bkg_pos = np.stack((xx.ravel(), yy.ravel(), zz.ravel()), axis=1)
     bkg_vels = np.zeros((bkg_ngrid**3, 3))
-    bkg_masses = np.ones(bkg_ngrid**3) * (
-        np.sum(masses[~mask]) / bkg_ngrid**3
-    )
+    bkg_masses = np.ones(bkg_ngrid**3) * (total_mass / bkg_ngrid**3)
 
     print(f"Added {bkg_pos.shape[0]} background particles.")
 
