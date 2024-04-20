@@ -127,7 +127,7 @@ def make_bkg_uniform(boxsize, bkg_ngrid, replicate, rho, new_masses):
     bkg_vels = np.zeros((bkg_ngrid**3, 3))
     bkg_masses = np.ones(bkg_ngrid**3) * (total_mass / bkg_ngrid**3)
 
-    return bkg_pos, bkg_masses, bkg_vels
+    return bkg_pos, bkg_masses, bkg_vels, boxsize
 
 
 def make_bkg_gradient(
@@ -150,15 +150,15 @@ def make_bkg_gradient(
         np.ndarray: The velocities of the background particles.
     """
     # Replicate the box if needed
-    boxsize *= replicate
+    new_boxsize = boxsize * replicate
     bkg_ngrid *= replicate
 
     # Compute the total mass needed for the background particles
-    total_mass = rho * boxsize**3 - np.sum(new_masses)
+    total_mass = rho * new_boxsize**3 - np.sum(new_masses)
 
     # Make a uniform grid for half the particles
     grid_pos, _, _ = make_bkg_uniform(
-        boxsize,
+        new_boxsize,
         bkg_ngrid // 2,
         1,
         rho,
@@ -182,7 +182,7 @@ def make_bkg_gradient(
         # Generate random points in the bounding cube
         r = np.random.normal(
             boxsize / 2,
-            region_rad,
+            region_rad * 2,
             nbkg,
         )
         theta = np.random.uniform(0, np.pi, nbkg)
@@ -201,9 +201,9 @@ def make_bkg_gradient(
         mask = np.logical_or(mask, bkg_pos[:, 0] < 0)
         mask = np.logical_or(mask, bkg_pos[:, 1] < 0)
         mask = np.logical_or(mask, bkg_pos[:, 2] < 0)
-        mask = np.logical_or(mask, bkg_pos[:, 0] > boxsize)
-        mask = np.logical_or(mask, bkg_pos[:, 1] > boxsize)
-        mask = np.logical_or(mask, bkg_pos[:, 2] > boxsize)
+        mask = np.logical_or(mask, bkg_pos[:, 0] > new_boxsize)
+        mask = np.logical_or(mask, bkg_pos[:, 1] > new_boxsize)
+        mask = np.logical_or(mask, bkg_pos[:, 2] > new_boxsize)
 
     # Define background velocities
     bkg_vels = np.zeros((bkg_ngrid**3, 3))
@@ -220,7 +220,7 @@ def make_bkg_gradient(
     mass_scale_factors = np.exp(-dist / (boxsize / bkg_ngrid))
     bkg_masses *= mass_scale_factors
 
-    return bkg_pos, bkg_masses, bkg_vels
+    return bkg_pos, bkg_masses, bkg_vels, new_boxsize
 
 
 def write_ics(
@@ -355,7 +355,7 @@ def make_ics_dmo(
 
     # Make the background particles
     if uniform_bkg:
-        bkg_pos, bkg_masses, bkg_vels = make_bkg_uniform(
+        bkg_pos, bkg_masses, bkg_vels, boxsize = make_bkg_uniform(
             boxsize,
             bkg_ngrid,
             replicate,
@@ -363,7 +363,7 @@ def make_ics_dmo(
             new_masses,
         )
     else:
-        bkg_pos, bkg_masses, bkg_vels = make_bkg_gradient(
+        bkg_pos, bkg_masses, bkg_vels, boxsize = make_bkg_gradient(
             boxsize,
             bkg_ngrid,
             replicate,
