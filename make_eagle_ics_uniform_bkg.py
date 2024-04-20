@@ -90,7 +90,7 @@ def make_eagle_ics_dmo_uniform_bkg(
     ics.write(output_file)
 
     # Write the background separately
-    hdf = h5py.File(output_file)
+    hdf = h5py.File(output_file, "r+")
     grp = hdf.create_group("PartType2")
     grp.create_dataset("Coordinates", data=bkg_pos)
     grp.create_dataset("Velocities", data=bkg_vels)
