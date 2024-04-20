@@ -27,7 +27,7 @@ from swiftsimio import Writer
 from swiftsimio.units import cosmo_units
 
 
-def squeeze_bkg(bkg_pos, max_pos, bkg_masses, boxsize, bkg_ngrid):
+def squeeze_bkg(bkg_pos, max_pos, bkg_masses, boxsize, bkg_ngrid, region_rad):
     """
     Squeeze the background particles towards the high resolution region.
 
@@ -42,17 +42,35 @@ def squeeze_bkg(bkg_pos, max_pos, bkg_masses, boxsize, bkg_ngrid):
         np.ndarray: The new positions of the background particles.
         np.ndarray: The new masses of the background particles.
     """
-    # Calculate vector from each position to max_pos
+    # Calculate vector from each position to max_pos and distances
     vectors_to_max = max_pos - bkg_pos
-
-    # Define a scaling function for positions based on distance
     distances = np.linalg.norm(vectors_to_max, axis=1)
-    position_scale_factors = 1 - np.exp(
-        -distances / (boxsize / bkg_ngrid)
-    )  # adjust scale as needed
 
-    # Apply the scaling function to squeeze positions towards max_pos
-    bkg_pos += vectors_to_max * position_scale_factors[:, np.newaxis]
+    # Define the spherical shell adjustment
+    # We move particles closer to the sphere at radius 'region_rad'
+    # but not inside it
+    desired_distances = np.clip(
+        distances, region_rad, None
+    )  # Ensure particles stay outside the sphere
+    move_factors = 1 - np.exp(
+        -(distances - region_rad) / (boxsize / bkg_ngrid)
+    )  # Scale factor
+    move_factors[
+        distances <= region_rad
+    ] = 0  # No movement for particles already inside the sphere
+
+    # Normalize vectors and scale by move_factors to adjust positions
+    # towards the spherical shell
+    normalized_vectors = vectors_to_max / distances[:, np.newaxis]
+    new_positions = (
+        bkg_pos
+        + normalized_vectors
+        * move_factors[:, np.newaxis]
+        * (desired_distances - distances)[:, np.newaxis]
+    )
+
+    # Update positions
+    bkg_pos = new_positions
 
     # Adjust the mass to keep mass density constant
     # Since more particles will be closer to max_pos, reduce their mass
@@ -154,6 +172,7 @@ def make_eagle_ics_dmo_uniform_bkg(
         bkg_masses,
         boxsize,
         bkg_ngrid,
+        region_rad,
     )
 
     # Set up the IC writer
