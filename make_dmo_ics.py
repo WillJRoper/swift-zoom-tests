@@ -178,7 +178,7 @@ def make_bkg_gradient(
 
         grid_pos, _, _, _ = make_bkg_uniform(
             boxsize / 2 + grid_radius,
-            bkg_ngrid,
+            bkg_ngrid // (new_boxsize / (boxsize / 2 + grid_radius)) + 2,
             1,
             rho,
             new_masses,
@@ -187,7 +187,6 @@ def make_bkg_gradient(
 
         # Add some randomness
         grid_pos += np.random.uniform(-0.1, 0.1, grid_pos.shape)
-        print(grid_pos.shape)
 
         # Remove any particles inside the zoom region
         mask = np.linalg.norm(grid_pos - (boxsize / 2), axis=1) > region_rad
