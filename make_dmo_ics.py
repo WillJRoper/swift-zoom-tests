@@ -93,16 +93,13 @@ def carve_out_region(pos, masses, vels, region_rad, max_pos, boxsize):
     return new_pos, new_masses, new_vels, pos
 
 
-def make_bkg_uniform(
-    boxsize, bkg_ngrid, replicate, rho, new_masses, region_rad
-):
+def make_bkg_uniform(boxsize, bkg_ngrid, rho, new_masses, region_rad):
     """
     Generate a uniform background of particles.
 
     Args:
         boxsize (float): The size of the simulation box.
         bkg_ngrid (int): The number of background particles per dimension.
-        replicate (int): The number of times to replicate the box.
         rho (float): The mass density of the dark matter particles.
         new_masses (np.ndarray): The masses of the dark matter particles.
         region_rad (float): The radius of the region to carve out.
@@ -112,19 +109,15 @@ def make_bkg_uniform(
         np.ndarray: The masses of the background particles.
         np.ndarray: The velocities of the background particles.
     """
-    # Replicate the box if needed
-    new_boxsize = boxsize * replicate
-    bkg_ngrid *= replicate
-
     # Compute the total mass needed for the background particles
     total_mass = rho * boxsize**3 - np.sum(new_masses)
     total_mass *= 10**10
 
     # Add the background particles
     xx, yy, zz = np.meshgrid(
-        np.linspace(0, new_boxsize, bkg_ngrid),
-        np.linspace(0, new_boxsize, bkg_ngrid),
-        np.linspace(0, new_boxsize, bkg_ngrid),
+        np.linspace(0, boxsize, bkg_ngrid),
+        np.linspace(0, boxsize, bkg_ngrid),
+        np.linspace(0, boxsize, bkg_ngrid),
     )
     bkg_pos = np.stack((xx.ravel(), yy.ravel(), zz.ravel()), axis=1)
 
@@ -138,19 +131,16 @@ def make_bkg_uniform(
         total_mass / bkg_pos.shape[0] ** 3
     )
 
-    return bkg_pos, bkg_masses, bkg_vels, new_boxsize
+    return bkg_pos, bkg_masses, bkg_vels, boxsize
 
 
-def make_bkg_gradient(
-    boxsize, bkg_ngrid, replicate, rho, new_masses, region_rad
-):
+def make_bkg_gradient(boxsize, bkg_ngrid, rho, new_masses, region_rad):
     """
     Generate background particles with a number density gradient.
 
     Args:
         boxsize (float): The size of the simulation box.
         bkg_ngrid (int): The number of background particles per dimension.
-        replicate (int): The number of times to replicate the box.
         rho (float): The mass density of the dark matter particles.
         new_masses (np.ndarray): The masses of the dark matter particles.
         region_rad (float): The radius of the high resolution region.
@@ -160,10 +150,6 @@ def make_bkg_gradient(
         np.ndarray: The masses of the background particles.
         np.ndarray: The velocities of the background particles.
     """
-    # Replicate the box if needed
-    boxsize *= replicate
-    bkg_ngrid *= replicate
-
     # Compute the total mass needed for the background particles
     total_mass = rho * boxsize**3 - np.sum(new_masses)
 
@@ -363,10 +349,18 @@ def make_ics_dmo(
             "The region will be limited to the entire box."
         )
 
+    # Replicate the box if needed
+    boxsize *= replicate
+    bkg_ngrid *= replicate
+
+    # Centre the positions in the new boxsize
+    pos += boxsize / 2
+    pos = (pos + boxsize) % boxsize
+
     # Get the position of the peak density (or the centre of the box if
     # region_rad exncompasses the entire box).
     if subset:
-        max_pos = get_max_pos(pos, masses, ngrid, boxsize)
+        max_pos = get_max_pos(pos, masses, ngrid * replicate, boxsize)
     else:
         max_pos = np.array([boxsize / 2, boxsize / 2, boxsize / 2])
 
@@ -400,12 +394,6 @@ def make_ics_dmo(
         )
 
     print(f"Added {bkg_pos.shape[0]} background particles.")
-
-    # Shift the particles to the middle of the box
-    new_pos -= boxsize / 2
-    new_pos = (new_pos + boxsize) % boxsize
-    bkg_pos -= boxsize / 2
-    bkg_pos = (bkg_pos + boxsize) % boxsize
 
     # Write the ICs
     write_ics(
