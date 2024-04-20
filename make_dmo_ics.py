@@ -413,10 +413,16 @@ if __name__ == "__main__":
     little_h = args.little_h
     uniform_bkg = args.uniform_bkg
 
-    out_file = (
-        f"ics/{args.output_basename}_rad{region_rad}_"
-        f"bkg{bkg_ngrid}_replicate{replicate}.hdf5"
-    )
+    if uniform_bkg:
+        out_file = (
+            f"ics/{args.output_basename}_rad{region_rad}_"
+            f"bkg{bkg_ngrid}_replicate{replicate}_uniformbkg.hdf5"
+        )
+    else:
+        out_file = (
+            f"ics/{args.output_basename}_rad{region_rad}_"
+            f"bkg{bkg_ngrid}_replicate{replicate}.hdf5"
+        )
 
     grid, high_res_pos, bkg_pos = make_ics_dmo(
         input_file,
