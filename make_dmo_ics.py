@@ -166,10 +166,6 @@ def make_bkg_gradient(
     new_boxsize = boxsize * replicate
     bkg_ngrid *= replicate
 
-    # Compute the total mass needed for the background particles
-    total_mass = rho * new_boxsize**3 - np.sum(new_masses)
-    total_mass *= 10**10
-
     # Generate grids of background particles in shells to create a gradient
     grid_radius = region_rad * 2
     bkg_poss = []
@@ -227,13 +223,26 @@ def make_bkg_gradient(
     # Define background velocities
     bkg_vels = np.zeros((bkg_ngrid**3, 3))
 
-    # Define distances of particles ready to scale the masses
-    dist = np.linalg.norm(bkg_pos - (boxsize / 2), axis=1)
+    # Define background masses
+    bkg_masses = np.ones(bkg_pos.shape[0])
 
-    # Scale the masses to decrease towards the zoom region
-    bkg_masses = np.ones(bkg_ngrid**3) * (dist / (new_boxsize / 2))
-    bkg_masses /= np.sum(bkg_masses)
-    bkg_masses *= total_mass
+    # Walk out in annuli scaling the mass
+    radii = np.linspace(0, new_boxsize, 100)
+    for i, r in enumerate(radii[:-1]):
+        # Get all particles in this annulus
+        mask = np.logical_and(
+            np.linalg.norm(bkg_pos - (boxsize / 2), axis=1) >= r,
+            np.linalg.norm(bkg_pos - (boxsize / 2), axis=1) < radii[i + 1],
+        )
+
+        if mask.sum() == 0:
+            continue
+
+        # Calculate the volume of this annulus
+        vol = 4 / 3 * np.pi * (radii[i + 1] ** 3 - radii[i] ** 3)
+
+        # Scale the mass of the particles in this annulus
+        bkg_masses[mask] = rho * vol / mask.sum()
 
     return bkg_pos, bkg_masses, bkg_vels, new_boxsize
 
