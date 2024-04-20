@@ -126,7 +126,7 @@ def make_bkg_uniform(boxsize, bkg_ngrid, replicate, rho, new_masses):
     bkg_pos = np.stack((xx.ravel(), yy.ravel(), zz.ravel()), axis=1)
 
     # Cut out the high resolution region
-    mask = np.linalg.norm(bkg_pos - (boxsize / 2), axis=1) < boxsize / 2
+    mask = np.linalg.norm(bkg_pos - (boxsize / 2), axis=1) < region_rad
     bkg_pos = bkg_pos[mask]
 
     # Define background velocities and masses
@@ -166,9 +166,10 @@ def make_bkg_gradient(
     grid_radius = region_rad * 2
     bkg_poss = []
     ngen = 0
-    while grid_radius < new_boxsize:
+    while True:
         print(
-            f"Generating background particles within {grid_radius}. "
+            "Generating background particles within "
+            f"{boxsize /2 + grid_radius}. "
             f"Currently have {ngen}"
         )
 
@@ -198,6 +199,9 @@ def make_bkg_gradient(
         # Add the grid to the list
         bkg_poss.append(grid_pos)
         ngen += grid_pos.shape[0]
+
+        if boxsize / 2 + grid_radius > new_boxsize:
+            break
 
         grid_radius *= 2
 
