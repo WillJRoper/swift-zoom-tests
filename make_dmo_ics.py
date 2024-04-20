@@ -201,6 +201,9 @@ def make_bkg_gradient(
     np.random.shuffle(bkg_pos)
     bkg_pos = bkg_pos[: bkg_ngrid**3, :]
 
+    if bkg_pos.size < bkg_ngrid**3:
+        raise ValueError("WARNING: Not enough background particles generated.")
+
     # Define background velocities
     bkg_vels = np.zeros((bkg_ngrid**3, 3))
 
