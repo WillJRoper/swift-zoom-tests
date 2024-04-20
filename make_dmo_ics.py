@@ -129,7 +129,7 @@ def make_bkg_uniform(
     bkg_pos = np.stack((xx.ravel(), yy.ravel(), zz.ravel()), axis=1)
 
     # Cut out the high resolution region
-    mask = np.linalg.norm(bkg_pos - (boxsize / 2), axis=1) < region_rad
+    mask = np.linalg.norm(bkg_pos - (boxsize / 2), axis=1) > region_rad
     bkg_pos = bkg_pos[mask]
 
     # Define background velocities and masses
