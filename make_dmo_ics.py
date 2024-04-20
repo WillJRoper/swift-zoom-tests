@@ -85,6 +85,11 @@ def carve_out_region(pos, masses, vels, region_rad, max_pos, boxsize):
     pos = (pos + boxsize) % boxsize
 
     # Mask out particles outside the region_rad from max_pos
+    print(f"Carving out region with radius {region_rad} Mpc.")
+    print(f"Max pos: {max_pos}")
+    print(f"Boxsize: {boxsize}")
+    print(f"Number of particles: {pos.shape[0]}")
+    print(f"Midpoint: {boxsize / 2}")
     mask = np.linalg.norm(pos - (boxsize / 2), axis=1) <= region_rad
     new_pos = pos[mask]
     new_vels = vels[mask]
