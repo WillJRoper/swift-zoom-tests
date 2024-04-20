@@ -235,7 +235,8 @@ def make_bkg_gradient(
 
     # Scale the masses to decrease towards the zoom region
     bkg_masses = bkg_masses * (1 - dist / (boxsize / 2))
-    bkg_masses /= np.sum(bkg_masses) * total_mass
+    bkg_masses /= np.sum(bkg_masses)
+    bkg_masses *= total_mass
 
     return bkg_pos, bkg_masses, bkg_vels, new_boxsize
 
