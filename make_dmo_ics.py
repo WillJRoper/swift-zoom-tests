@@ -165,6 +165,8 @@ def make_bkg_gradient(
         # How many positions do we need to generate?
         nbkg = mask.sum()
 
+        print(f"Generating background particles... {nbkg} to go..")
+
         # Generate random points in the bounding cube
         r = np.random.normal(
             boxsize / 2 + region_rad,
