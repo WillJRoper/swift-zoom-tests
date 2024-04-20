@@ -119,6 +119,7 @@ def make_bkg_uniform(
 
     # Compute the total mass needed for the background particles
     total_mass = rho * boxsize**3 - np.sum(new_masses)
+    total_mass *= 10**10
 
     # Add the background particles
     xx, yy, zz = np.meshgrid(
@@ -129,6 +130,7 @@ def make_bkg_uniform(
     bkg_pos = np.stack((xx.ravel(), yy.ravel(), zz.ravel()), axis=1)
 
     # Cut out the high resolution region
+    print(boxsize / 2, region_rad)
     mask = np.linalg.norm(bkg_pos - (boxsize / 2), axis=1) > region_rad
     bkg_pos = bkg_pos[mask]
 
