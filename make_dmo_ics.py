@@ -166,6 +166,10 @@ def make_bkg_gradient(
     boxsize *= replicate
     bkg_ngrid *= replicate
 
+    # Compute the total mass needed for the background particles
+    total_mass = rho * boxsize**3 - np.sum(new_masses)
+    total_mass *= 10**10
+
     # Generate grids of background particles in shells to create a gradient
     grid_radius = region_rad * 2
     bkg_poss = []
@@ -249,6 +253,11 @@ def make_bkg_gradient(
 
         # Scale the mass of the particles in this annulus
         bkg_masses[mask] = rho * vol / mask.sum()
+
+    # Finally, normalise and rescale the masses to make sure we have the right
+    # total mass
+    bkg_masses /= np.sum(bkg_masses)
+    bkg_masses *= total_mass
 
     return bkg_pos, bkg_masses, bkg_vels, boxsize
 
