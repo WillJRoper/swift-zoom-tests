@@ -82,11 +82,10 @@ def carve_out_region(pos, masses, vels, region_rad, max_pos, boxsize):
     """
     # Shift positions to centre on max_pos
     pos -= max_pos
-    pos += boxsize / 2
-    pos %= boxsize
+    pos = (pos + boxsize) % boxsize
 
     # Mask out particles outside the region_rad from max_pos
-    mask = np.linalg.norm(pos - (boxsize / 2), axis=1) < region_rad
+    mask = np.linalg.norm(pos - (boxsize / 2), axis=1) <= region_rad
     new_pos = pos[mask]
     new_vels = vels[mask]
     new_masses = masses[mask]
@@ -130,7 +129,6 @@ def make_bkg_uniform(
     bkg_pos = np.stack((xx.ravel(), yy.ravel(), zz.ravel()), axis=1)
 
     # Cut out the high resolution region
-    print(boxsize / 2, region_rad)
     mask = np.linalg.norm(bkg_pos - (boxsize / 2), axis=1) > region_rad
     bkg_pos = bkg_pos[mask]
 
@@ -168,7 +166,6 @@ def make_bkg_gradient(
 
     # Compute the total mass needed for the background particles
     total_mass = rho * boxsize**3 - np.sum(new_masses)
-    total_mass *= 10**10
 
     # Generate grids of background particles in shells to create a gradient
     grid_radius = region_rad * 2
