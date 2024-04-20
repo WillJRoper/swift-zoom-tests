@@ -122,9 +122,9 @@ def make_bkg_uniform(
 
     # Add the background particles
     xx, yy, zz = np.meshgrid(
-        np.linspace(0, boxsize, bkg_ngrid),
-        np.linspace(0, boxsize, bkg_ngrid),
-        np.linspace(0, boxsize, bkg_ngrid),
+        np.linspace(0, new_boxsize, bkg_ngrid),
+        np.linspace(0, new_boxsize, bkg_ngrid),
+        np.linspace(0, new_boxsize, bkg_ngrid),
     )
     bkg_pos = np.stack((xx.ravel(), yy.ravel(), zz.ravel()), axis=1)
 
