@@ -385,6 +385,10 @@ def make_ics_dmo(
 
     print(f"Carved out {new_pos.shape[0]} particles.")
 
+    # Centre the zoom region
+    new_pos -= boxsize / 2
+    new_pos = (new_pos + boxsize) % boxsize
+
     # Make the background particles
     if uniform_bkg:
         bkg_pos, bkg_masses, bkg_vels, boxsize = make_bkg_uniform(
