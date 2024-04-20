@@ -227,14 +227,11 @@ def make_bkg_gradient(
     # Define background velocities
     bkg_vels = np.zeros((bkg_ngrid**3, 3))
 
-    # Define background masses
-    bkg_masses = np.ones(bkg_ngrid**3) * (total_mass / bkg_ngrid**3)
-
     # Define distances of particles ready to scale the masses
     dist = np.linalg.norm(bkg_pos - (boxsize / 2), axis=1)
 
     # Scale the masses to decrease towards the zoom region
-    bkg_masses = bkg_masses * (1 - dist / (boxsize / 2))
+    bkg_masses = np.ones(bkg_ngrid**3) * (1 - dist / (boxsize / 2))
     bkg_masses /= np.sum(bkg_masses)
     bkg_masses *= total_mass
 
