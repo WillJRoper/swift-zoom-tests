@@ -168,12 +168,13 @@ def make_bkg_gradient(
     ngen = 0
     while grid_radius < new_boxsize:
         print(
-            f"Generating background particles within {grid_radius}. Currently have {ngen}"
+            f"Generating background particles within {grid_radius}. "
+            f"Currently have {ngen}"
         )
 
         grid_pos, _, _, _ = make_bkg_uniform(
             boxsize / 2 + grid_radius,
-            bkg_ngrid // replicate,
+            bkg_ngrid,
             1,
             rho,
             new_masses,
