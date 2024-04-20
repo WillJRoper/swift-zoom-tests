@@ -157,7 +157,7 @@ def make_bkg_gradient(
     total_mass = rho * new_boxsize**3 - np.sum(new_masses)
 
     # Make a uniform grid for half the particles
-    grid_pos, _, _ = make_bkg_uniform(
+    grid_pos, _, _, _ = make_bkg_uniform(
         new_boxsize,
         bkg_ngrid // 2,
         1,
