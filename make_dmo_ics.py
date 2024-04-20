@@ -111,7 +111,7 @@ def make_bkg_uniform(boxsize, bkg_ngrid, replicate, rho, new_masses):
         np.ndarray: The velocities of the background particles.
     """
     # Replicate the box if needed
-    boxsize *= replicate
+    new_boxsize = boxsize * replicate
     bkg_ngrid *= replicate
 
     # Compute the total mass needed for the background particles
@@ -124,10 +124,16 @@ def make_bkg_uniform(boxsize, bkg_ngrid, replicate, rho, new_masses):
         np.linspace(0, boxsize, bkg_ngrid),
     )
     bkg_pos = np.stack((xx.ravel(), yy.ravel(), zz.ravel()), axis=1)
-    bkg_vels = np.zeros((bkg_ngrid**3, 3))
-    bkg_masses = np.ones(bkg_ngrid**3) * (total_mass / bkg_ngrid**3)
 
-    return bkg_pos, bkg_masses, bkg_vels, boxsize
+    # Cut out the high resolution region
+    mask = np.linalg.norm(bkg_pos - (boxsize / 2), axis=1) < boxsize / 2
+    bkg_pos = bkg_pos[mask]
+
+    # Define background velocities and masses
+    bkg_vels = np.zeros((bkg_ngrid**3, 3))
+    bkg_masses = np.ones(bkg_ngrid**3) * (total_mass / bkg_pos.shape[0] ** 3)
+
+    return bkg_pos, bkg_masses, bkg_vels, new_boxsize
 
 
 def make_bkg_gradient(
@@ -156,54 +162,44 @@ def make_bkg_gradient(
     # Compute the total mass needed for the background particles
     total_mass = rho * new_boxsize**3 - np.sum(new_masses)
 
-    # Make a uniform grid for half the particles
-    grid_pos, _, _, _ = make_bkg_uniform(
-        new_boxsize,
-        bkg_ngrid // 2,
-        1,
-        rho,
-        new_masses,
-    )
-    # Define the background particle positions
-    bkg_pos = np.zeros((bkg_ngrid**3, 3))
-    bkg_pos[: grid_pos.shape[0], 0] = grid_pos[:, 0]
-    bkg_pos[: grid_pos.shape[0], 1] = grid_pos[:, 1]
-    bkg_pos[: grid_pos.shape[0], 2] = grid_pos[:, 2]
-    mask = np.ones(bkg_ngrid**3, dtype=bool)
-    mask[: grid_pos.shape[0]] = False
+    # Generate grids of background particles in shells to create a gradient
+    grid_radius = region_rad * 2
+    bkg_poss = []
+    while grid_radius < boxsize:
+        print("Generating background particles within:", grid_radius)
 
-    # Loop until we've generated all the particles to be outside the zoom region
-    while mask.any():
-        # How many positions do we need to generate?
-        nbkg = mask.sum()
-
-        print(f"Generating background particles... {nbkg} to go...")
-
-        # Generate random points in the bounding cube
-        r = np.random.normal(
-            boxsize / 2,
-            region_rad * 2,
-            nbkg,
+        grid_pos, _, _, _ = make_bkg_uniform(
+            boxsize / 2 + grid_radius,
+            bkg_ngrid // replicate,
+            1,
+            rho,
+            new_masses,
         )
-        theta = np.random.uniform(0, np.pi, nbkg)
-        phi = np.random.uniform(0, 2 * np.pi, nbkg)
 
-        # Convert spherical to Cartesian coordinates
-        x = r * np.sin(theta) * np.cos(phi)
-        y = r * np.sin(theta) * np.sin(phi)
-        z = r * np.cos(theta)
+        # Add some randomness
+        grid_pos += np.random.uniform(-0.1, 0.1, grid_pos.shape)
 
-        # Assign the positions
-        bkg_pos[mask] = np.stack((x, y, z), axis=1)
+        # Remove any particles inside the zoom region
+        mask = np.linalg.norm(grid_pos - (boxsize / 2), axis=1) < region_rad
+        grid_pos = grid_pos[~mask]
 
-        # Update the mask
-        mask = np.linalg.norm(bkg_pos - (boxsize / 2), axis=1) < region_rad
-        mask = np.logical_or(mask, bkg_pos[:, 0] < 0)
-        mask = np.logical_or(mask, bkg_pos[:, 1] < 0)
-        mask = np.logical_or(mask, bkg_pos[:, 2] < 0)
-        mask = np.logical_or(mask, bkg_pos[:, 0] > new_boxsize)
-        mask = np.logical_or(mask, bkg_pos[:, 1] > new_boxsize)
-        mask = np.logical_or(mask, bkg_pos[:, 2] > new_boxsize)
+        # Remove any particles outside the box
+        mask = np.logical_or(grid_pos[:, 0] < 0, grid_pos[:, 1] < 0)
+        mask = np.logical_or(mask, grid_pos[:, 2] < 0)
+        mask = np.logical_or(mask, grid_pos[:, 0] > new_boxsize)
+        mask = np.logical_or(mask, grid_pos[:, 1] > new_boxsize)
+        mask = np.logical_or(mask, grid_pos[:, 2] > new_boxsize)
+        grid_pos = grid_pos[~mask]
+
+        # Add the grid to the list
+        bkg_poss.append(grid_pos)
+
+        grid_radius *= 2
+
+    # Now choose bkg_ngrid**3 particles randomly
+    bkg_pos = np.concatenate(bkg_poss)
+    np.random.shuffle(bkg_pos)
+    bkg_pos = bkg_pos[: bkg_ngrid**3, :]
 
     # Define background velocities
     bkg_vels = np.zeros((bkg_ngrid**3, 3))
