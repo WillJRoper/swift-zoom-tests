@@ -63,7 +63,9 @@ def get_max_pos(pos, masses, ngrid, boxsize):
     return max_pos
 
 
-def carve_out_region(pos, masses, vels, region_rad, max_pos, boxsize):
+def carve_out_region(
+    pos, masses, vels, region_rad, max_pos, boxsize, replicate
+):
     """
     Carve out the high resolution region from the dark matter particles.
 
@@ -80,16 +82,14 @@ def carve_out_region(pos, masses, vels, region_rad, max_pos, boxsize):
         np.ndarray: The new masses of the dark matter particles.
         np.ndarray: The new velocities of the dark matter particles.
     """
+    # Calculate the old boxsize
+    boxsize = boxsize / replicate
+
     # Shift positions to centre on max_pos
     pos -= max_pos
-    pos = (pos + boxsize / 2) % boxsize
+    pos = (pos + boxsize) % boxsize
 
     # Mask out particles outside the region_rad from max_pos
-    print(f"Carving out region with radius {region_rad} Mpc.")
-    print(f"Max pos: {max_pos}")
-    print(f"Boxsize: {boxsize}")
-    print(f"Number of particles: {pos.shape[0]}")
-    print(f"Midpoint: {boxsize / 2}")
     mask = np.linalg.norm(pos - (boxsize / 2), axis=1) <= region_rad
     new_pos = pos[mask]
     new_vels = vels[mask]
@@ -358,10 +358,6 @@ def make_ics_dmo(
     bkg_ngrid *= replicate
     ngrid *= replicate
 
-    # Centre the positions in the new boxsize
-    pos -= boxsize / 2
-    pos = (pos + boxsize) % boxsize
-
     # Get the position of the peak density (or the centre of the box if
     # region_rad exncompasses the entire box).
     if subset:
@@ -380,6 +376,7 @@ def make_ics_dmo(
             region_rad,
             max_pos,
             boxsize,
+            replicate,
         )
     else:
         new_pos = pos
