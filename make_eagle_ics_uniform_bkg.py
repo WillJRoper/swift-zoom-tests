@@ -76,9 +76,9 @@ def make_eagle_ics_dmo_uniform_bkg(
 
     # Add the background particles
     xx, yy, zz = np.meshgrid(
-        np.linspace(0, boxsize[0], bkg_ngrid),
-        np.linspace(0, boxsize[1], bkg_ngrid),
-        np.linspace(0, boxsize[2], bkg_ngrid),
+        np.linspace(0, boxsize, bkg_ngrid),
+        np.linspace(0, boxsize, bkg_ngrid),
+        np.linspace(0, boxsize, bkg_ngrid),
     )
     bkg_pos = np.stack((xx.ravel(), yy.ravel(), zz.ravel()), axis=1)
     bkg_vels = np.zeros((bkg_ngrid**3, 3))
