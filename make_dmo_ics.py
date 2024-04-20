@@ -220,6 +220,10 @@ def make_bkg_gradient(
     if bkg_pos.size < bkg_ngrid**3:
         raise ValueError("Not enough background particles generated.")
 
+    # Temporarily shift the background particles to the centre of the box
+    bkg_pos -= new_boxsize / 2
+    bkg_pos = (bkg_pos + new_boxsize) % new_boxsize
+
     # Define background velocities
     bkg_vels = np.zeros((bkg_ngrid**3, 3))
 
@@ -238,11 +242,19 @@ def make_bkg_gradient(
         if mask.sum() == 0:
             continue
 
-        # Calculate the volume of this annulus
-        vol = 4 / 3 * np.pi * (radii[i + 1] ** 3 - radii[i] ** 3)
+        # Calculate the volume of this annulus accounting for how much of the
+        # anullus is outside the simulation volume (note, this is simplified by
+        # the fact the background particles car currently centred in the volume)
+        vol = (
+            np.pi * (radii[i + 1] ** 2 - r**2) * (1 - (r / new_boxsize) ** 3)
+        )
 
         # Scale the mass of the particles in this annulus
         bkg_masses[mask] = rho * vol / mask.sum()
+
+    # Finally shift the particles back to their original postion
+    bkg_pos -= boxsize / 2
+    bkg_pos = (bkg_pos + new_boxsize) % new_boxsize
 
     return bkg_pos, bkg_masses, bkg_vels, new_boxsize
 
