@@ -163,7 +163,7 @@ def make_bkg_gradient(
         np.ndarray: The velocities of the background particles.
     """
     # Replicate the box if needed
-    new_boxsize = boxsize * replicate
+    boxsize *= replicate
     bkg_ngrid *= replicate
 
     # Generate grids of background particles in shells to create a gradient
@@ -179,7 +179,7 @@ def make_bkg_gradient(
 
         grid_pos, _, _, _ = make_bkg_uniform(
             boxsize / 2 + grid_radius,
-            int(bkg_ngrid // (new_boxsize / (boxsize / 2 + grid_radius)) + 2),
+            int(bkg_ngrid // (boxsize / (boxsize / 2 + grid_radius)) + 2),
             1,
             rho,
             new_masses,
@@ -196,16 +196,16 @@ def make_bkg_gradient(
         # Remove any particles outside the box
         mask = np.logical_or(grid_pos[:, 0] < 0, grid_pos[:, 1] < 0)
         mask = np.logical_or(mask, grid_pos[:, 2] < 0)
-        mask = np.logical_or(mask, grid_pos[:, 0] > new_boxsize)
-        mask = np.logical_or(mask, grid_pos[:, 1] > new_boxsize)
-        mask = np.logical_or(mask, grid_pos[:, 2] > new_boxsize)
+        mask = np.logical_or(mask, grid_pos[:, 0] > boxsize)
+        mask = np.logical_or(mask, grid_pos[:, 1] > boxsize)
+        mask = np.logical_or(mask, grid_pos[:, 2] > boxsize)
         grid_pos = grid_pos[~mask]
 
         # Add the grid to the list
         bkg_poss.append(grid_pos)
         ngen += grid_pos.shape[0]
 
-        if boxsize / 2 + grid_radius > new_boxsize:
+        if boxsize / 2 + grid_radius > boxsize:
             break
 
         grid_radius *= 2
@@ -220,9 +220,9 @@ def make_bkg_gradient(
     if bkg_pos.size < bkg_ngrid**3:
         raise ValueError("Not enough background particles generated.")
 
-    # Temporarily shift the background particles to the centre of the box
-    bkg_pos -= new_boxsize / 2
-    bkg_pos = (bkg_pos + new_boxsize) % new_boxsize
+    # Shift the background particles to the centre of the box
+    bkg_pos -= boxsize / 2
+    bkg_pos = (bkg_pos + boxsize) % boxsize
 
     # Define background velocities
     bkg_vels = np.zeros((bkg_ngrid**3, 3))
@@ -231,7 +231,7 @@ def make_bkg_gradient(
     bkg_masses = np.ones(bkg_pos.shape[0])
 
     # Walk out in annuli scaling the mass
-    radii = np.linspace(0, new_boxsize, 100)
+    radii = np.linspace(0, boxsize, 100)
     for i, r in enumerate(radii[:-1]):
         # Get all particles in this annulus
         mask = np.logical_and(
@@ -245,18 +245,12 @@ def make_bkg_gradient(
         # Calculate the volume of this annulus accounting for how much of the
         # anullus is outside the simulation volume (note, this is simplified by
         # the fact the background particles car currently centred in the volume)
-        vol = (
-            np.pi * (radii[i + 1] ** 2 - r**2) * (1 - (r / new_boxsize) ** 3)
-        )
+        vol = np.pi * (radii[i + 1] ** 2 - r**2) * (1 - (r / boxsize) ** 3)
 
         # Scale the mass of the particles in this annulus
         bkg_masses[mask] = rho * vol / mask.sum()
 
-    # Finally shift the particles back to their original postion
-    bkg_pos -= boxsize / 2
-    bkg_pos = (bkg_pos + new_boxsize) % new_boxsize
-
-    return bkg_pos, bkg_masses, bkg_vels, new_boxsize
+    return bkg_pos, bkg_masses, bkg_vels, boxsize
 
 
 def write_ics(
@@ -400,6 +394,12 @@ def make_ics_dmo(
         )
 
     print(f"Added {bkg_pos.shape[0]} background particles.")
+
+    # Shift the particles to the middle of the box
+    new_pos -= boxsize / 2
+    new_pos = (new_pos + boxsize) % boxsize
+    bkg_pos -= boxsize / 2
+    bkg_pos = (bkg_pos + boxsize) % boxsize
 
     # Write the ICs
     write_ics(
