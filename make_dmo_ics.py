@@ -82,10 +82,11 @@ def carve_out_region(pos, masses, vels, region_rad, max_pos, boxsize):
     """
     # Shift positions to centre on max_pos
     pos -= max_pos
-    pos += boxsize / 2
+    pos += boxsize
+    pos %= boxsize
 
     # Mask out particles outside the region_rad from max_pos
-    mask = np.linalg.norm(pos - max_pos, axis=1) < region_rad
+    mask = np.linalg.norm(pos - (boxsize / 2), axis=1) < region_rad
     new_pos = pos[mask]
     new_vels = vels[mask]
     new_masses = masses[mask]
