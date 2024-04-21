@@ -296,14 +296,14 @@ def write_ics(
     # Set up the IC writer
     ics = Writer(
         cosmo_units,
-        np.array((boxsize, boxsize, boxsize)),
+        np.array((boxsize, boxsize, boxsize)) * Mpc,
         dimension=3,
     )
 
     # Write the dark matter particles
-    ics.dark_matter.coordinates = new_pos
-    ics.dark_matter.velocities = new_vels
-    ics.dark_matter.masses = new_masses
+    ics.dark_matter.coordinates = new_pos * Mpc
+    ics.dark_matter.velocities = new_vels * km / s
+    ics.dark_matter.masses = new_masses * 10**10 * Msun
 
     # Write the ICs
     ics.write(output_file)
@@ -313,7 +313,9 @@ def write_ics(
     grp = hdf.create_group("PartType2")
     grp.create_dataset("Coordinates", data=bkg_pos, compression="gzip")
     grp.create_dataset("Velocities", data=bkg_vels, compression="gzip")
-    grp.create_dataset("Masses", data=bkg_masses, compression="gzip")
+    grp.create_dataset(
+        "Masses", data=bkg_masses * 10**10, compression="gzip"
+    )
 
     # Update the metadata
     hdf["Header"].attrs["NumPart_ThisFile"][2] = bkg_masses.size
