@@ -156,7 +156,7 @@ def make_bkg_gradient(boxsize, bkg_ngrid, rho, new_masses, region_rad):
         np.ndarray: The velocities of the background particles.
     """
     # Compute the total mass needed for the background particles
-    total_mass = rho * boxsize**3 - np.sum(new_masses)
+    total_mass = (rho * boxsize**3 / 10**10) - np.sum(new_masses)
 
     # Generate grids of background particles in shells to create a gradient
     grid_radius = region_rad * 2
