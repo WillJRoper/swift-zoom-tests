@@ -313,7 +313,7 @@ def write_ics(
     grp.create_dataset("Masses", data=bkg_masses, compression="gzip")
     grp.create_dataset(
         "ParticleIDs",
-        data=np.arange(0, bkg_masses.size, 1, dtype=int),
+        data=np.arange(0, bkg_masses.size, 1, dtype=int) + new_pos.shape[0],
         compression="gzip",
     )
 
