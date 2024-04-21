@@ -115,8 +115,7 @@ def make_bkg_uniform(boxsize, bkg_ngrid, rho, new_masses, region_rad):
         np.ndarray: The velocities of the background particles.
     """
     # Compute the total mass needed for the background particles
-    total_mass = rho * boxsize**3 - np.sum(new_masses)
-    total_mass *= 10**10
+    total_mass = (rho * boxsize**3 / 10**10) - np.sum(new_masses)
 
     # Add the background particles
     xx, yy, zz = np.meshgrid(
