@@ -437,7 +437,6 @@ def make_ics_dmo(
         region_rad,
         bkg_ngrid,
         new_pos.shape[0],
-        omega_m,
     )
 
 
