@@ -131,9 +131,7 @@ def make_bkg_uniform(boxsize, bkg_ngrid, rho, new_masses, region_rad):
 
     # Define background velocities and masses
     bkg_vels = np.zeros(bkg_pos.shape)
-    bkg_masses = np.ones(bkg_pos.shape[0]) * (
-        total_mass / bkg_pos.shape[0] ** 3
-    )
+    bkg_masses = np.ones(bkg_pos.shape[0]) * (total_mass / bkg_pos.shape[0])
 
     return bkg_pos, bkg_masses, bkg_vels, boxsize
 
