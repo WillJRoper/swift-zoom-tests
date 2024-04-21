@@ -291,6 +291,8 @@ def write_ics(
     else:
         output_file = f"ics/{output_basename}_{tag}.hdf5"
 
+    print(cosmo_units)
+
     # Set up the IC writer
     ics = Writer(
         cosmo_units,
