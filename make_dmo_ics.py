@@ -321,9 +321,9 @@ def write_ics(
     hdf["Header"].attrs["NumPart_ThisFile"] = num_part
     num_part = hdf["Header"].attrs["NumPart_Total"]
     num_part[2] = bkg_masses.size
-    hdf["Header"].attrs["NumPart_Total"] = 0
+    hdf["Header"].attrs["NumPart_Total"] = num_part
     mass_table = hdf["Header"].attrs["MassTable"]
-    mass_table[2] = bkg_masses[0]
+    mass_table[2] = bkg_masses.mean()
     hdf["Header"].attrs["MassTable"] = mass_table
 
     hdf.close()
