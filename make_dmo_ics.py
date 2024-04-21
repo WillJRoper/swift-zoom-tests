@@ -313,15 +313,18 @@ def write_ics(
     grp = hdf.create_group("PartType2")
     grp.create_dataset("Coordinates", data=bkg_pos, compression="gzip")
     grp.create_dataset("Velocities", data=bkg_vels, compression="gzip")
-    grp.create_dataset(
-        "Masses", data=bkg_masses * 10**10, compression="gzip"
-    )
+    grp.create_dataset("Masses", data=bkg_masses, compression="gzip")
 
     # Update the metadata
-    hdf["Header"].attrs["NumPart_ThisFile"][2] = bkg_masses.size
-    hdf["Header"].attrs["NumPart_Total"][2] = bkg_masses.size
-    hdf["Header"].attrs["NumPart_Total_HighWord"][2] = 0
-    hdf["Header"].attrs["MassTable"][2] = bkg_masses[0]
+    num_part = hdf["Header"].attrs["NumPart_ThisFile"]
+    num_part[2] = bkg_masses.size
+    hdf["Header"].attrs["NumPart_ThisFile"] = num_part
+    num_part = hdf["Header"].attrs["NumPart_Total"]
+    num_part[2] = bkg_masses.size
+    hdf["Header"].attrs["NumPart_Total"] = 0
+    mass_table = hdf["Header"].attrs["MassTable"]
+    mass_table[2] = bkg_masses[0]
+    hdf["Header"].attrs["MassTable"] = mass_table
 
     hdf.close()
 
