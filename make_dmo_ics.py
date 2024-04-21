@@ -331,6 +331,8 @@ def make_ics_dmo(
     replicate,
     little_h=0.6777,
     uniform_bkg=True,
+    omega_m=0.307,
+    rho_crit=2.77536627 * 10**11,
 ):
     """
     Generate DMO ics by carving out the densest region in the simulation box.
@@ -344,6 +346,8 @@ def make_ics_dmo(
         replicate (int): The number of times to replicate the box.
         little_h (float): The value of little h.
         uniform_bkg (bool): Whether to use a uniform background.
+        omega_m (float): The value of Omega_m.
+        rho_crit (float): The value of the critical density in simulation units.
     """
     # Load the data
     hdf = h5py.File(input_file, "r")
@@ -360,7 +364,7 @@ def make_ics_dmo(
     print(f"Loaded {pos.shape[0]} dark matter particles.")
 
     # Calculate the mass density
-    rho = np.sum(masses) / boxsize**3
+    rho = omega_m * rho_crit
 
     # Do we need to select a subset or just use the whole box?
     subset = region_rad < boxsize / 2
@@ -433,6 +437,7 @@ def make_ics_dmo(
         region_rad,
         bkg_ngrid,
         new_pos.shape[0],
+        omega_m,
     )
 
 
@@ -485,6 +490,18 @@ if __name__ == "__main__":
         help="Whether to use a uniform background.",
         default=False,
     )
+    parser.add_argument(
+        "--omega_m",
+        type=float,
+        help="The value of Omega_m.",
+        default=0.307,
+    )
+    parser.add_argument(
+        "--rho_crit",
+        type=float,
+        help="The value of the critical density in simulation units.",
+        default=2.77536627 * 10**11,
+    )
 
     args = parser.parse_args()
 
@@ -496,6 +513,8 @@ if __name__ == "__main__":
     replicate = args.replicate
     little_h = args.little_h
     uniform_bkg = args.uniform_bkg
+    omega_m = args.omega_m
+    rho_crit = args.rho_crit
 
     make_ics_dmo(
         input_file,
@@ -506,4 +525,6 @@ if __name__ == "__main__":
         replicate,
         little_h=little_h,
         uniform_bkg=uniform_bkg,
+        omega_m=omega_m,
+        rho_crit=rho_crit,
     )
