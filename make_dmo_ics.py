@@ -311,6 +311,11 @@ def write_ics(
     grp.create_dataset("Coordinates", data=bkg_pos, compression="gzip")
     grp.create_dataset("Velocities", data=bkg_vels, compression="gzip")
     grp.create_dataset("Masses", data=bkg_masses, compression="gzip")
+    grp.create_dataset(
+        "ParticleIDs",
+        data=np.arange(0, bkg_masses.size, 1, dtype=int),
+        compression="gzip",
+    )
 
     # Update the metadata
     num_part = hdf["Header"].attrs["NumPart_ThisFile"]
