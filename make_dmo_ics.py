@@ -358,11 +358,11 @@ def make_ics_dmo(
 
     # Get the metadata
     meta = hdf["Header"]
-    boxsize = meta.attrs["BoxSize"]
+    boxsize = meta.attrs["BoxSize"] / little_h
 
     # Read the dark matter coordinates, velocities and masses
-    pos = hdf["PartType1"]["Coordinates"][...]
-    masses = hdf["PartType1"]["Masses"][...]
+    pos = hdf["PartType1"]["Coordinates"][...] / little_h
+    masses = hdf["PartType1"]["Masses"][...] / little_h
     vels = hdf["PartType1"]["Velocities"][...]
 
     print(f"Loaded {pos.shape[0]} dark matter particles.")
