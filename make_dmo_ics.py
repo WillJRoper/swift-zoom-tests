@@ -296,14 +296,14 @@ def write_ics(
     # Set up the IC writer
     ics = Writer(
         cosmo_units,
-        np.array((boxsize, boxsize, boxsize)) * Mpc,
+        np.array((boxsize, boxsize, boxsize)),
         dimension=3,
     )
 
     # Write the dark matter particles
-    ics.dark_matter.coordinates = new_pos * Mpc
-    ics.dark_matter.velocities = new_vels * km / s
-    ics.dark_matter.masses = new_masses * 10**10 * Msun
+    ics.dark_matter.coordinates = new_pos
+    ics.dark_matter.velocities = new_vels
+    ics.dark_matter.masses = new_masses
 
     # Write the ICs
     ics.write(output_file)
