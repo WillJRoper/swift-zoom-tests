@@ -250,7 +250,7 @@ def make_bkg_gradient(boxsize, bkg_ngrid, rho, new_masses, region_rad):
 
 
 def write_ics(
-    output_file,
+    output_basename,
     new_pos,
     new_vels,
     new_masses,
@@ -258,12 +258,15 @@ def write_ics(
     bkg_vels,
     bkg_masses,
     boxsize,
+    region_rad,
+    bkg_ngrid,
+    npart,
 ):
     """
     Write the initial conditions to a file.
 
     Args:
-        output_file (str): The path to the output file.
+        output_basename (str): The base name of the output file.
         new_pos (np.ndarray): The positions of the dark matter particles.
         new_vels (np.ndarray): The velocities of the dark matter particles.
         new_masses (np.ndarray): The masses of the dark matter particles.
@@ -271,7 +274,23 @@ def write_ics(
         bkg_vels (np.ndarray): The velocities of the background particles.
         bkg_masses (np.ndarray): The masses of the background particles.
         boxsize (float): The size of the simulation box.
+        region_rad (float): The radius of the high resolution region.
+        bkg_ngrid (int): The number of background particles per dimension.
+        npart (int): The number of dark matter particles.
     """
+    # Create radius string
+    r_str = str(region_rad).replace(".", "p")
+
+    # Create simulation tag
+    tag = (
+        f"L{int(boxsize):04}N{int(npart**(1/3)):04}NBKG{bkg_ngrid:04}R{r_str}"
+    )
+
+    if uniform_bkg:
+        output_file = f"ics/{output_basename}_{tag}_uniformbkg.hdf5"
+    else:
+        output_file = f"ics/{output_basename}_{tag}.hdf5"
+
     # Set up the IC writer
     ics = Writer(
         cosmo_units,
@@ -305,7 +324,7 @@ def write_ics(
 
 def make_ics_dmo(
     input_file,
-    output_file,
+    output_basename,
     ngrid,
     bkg_ngrid,
     region_rad,
@@ -318,7 +337,7 @@ def make_ics_dmo(
 
     Args:
         input_file (str): The path to the input file.
-        output_file (str): The path to the output file.
+        output_basename (str): The path to the output file.
         ngrid (int): The number of grid cells along each dimension.
         bkg_ngrid (int): The number of background particles per dimension.
         region_rad (float): The radius of the region to carve out.
@@ -403,7 +422,7 @@ def make_ics_dmo(
 
     # Write the ICs
     write_ics(
-        output_file,
+        output_basename,
         new_pos,
         new_vels,
         new_masses,
@@ -411,6 +430,9 @@ def make_ics_dmo(
         bkg_vels,
         bkg_masses,
         boxsize,
+        region_rad,
+        bkg_ngrid,
+        new_pos.shape[0],
     )
 
 
@@ -470,24 +492,14 @@ if __name__ == "__main__":
     ngrid = args.ngrid
     bkg_ngrid = args.bkg_ngrid
     input_file = args.input_file
+    out_basename = args.output_basename
     replicate = args.replicate
     little_h = args.little_h
     uniform_bkg = args.uniform_bkg
 
-    if uniform_bkg:
-        out_file = (
-            f"ics/{args.output_basename}_rad{region_rad}_"
-            f"bkg{bkg_ngrid}_replicate{replicate}_uniformbkg.hdf5"
-        )
-    else:
-        out_file = (
-            f"ics/{args.output_basename}_rad{region_rad}_"
-            f"bkg{bkg_ngrid}_replicate{replicate}.hdf5"
-        )
-
     make_ics_dmo(
         input_file,
-        out_file,
+        out_basename,
         ngrid,
         bkg_ngrid,
         region_rad,
