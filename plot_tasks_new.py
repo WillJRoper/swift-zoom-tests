@@ -39,24 +39,28 @@ for branch in branches:
         )
         print(branch, test, runs[branch + "/" + test].get_tasks()[-1])
 
-fig = plt.figure(figsize=(12, 6))  # Adjusted figure size for better fit
+fig = plt.figure(figsize=(12, 6))
 ax = fig.add_subplot(111)
-ax.set_xscale("log")  # Use logarithmic scale for x-axis
+ax.set_xscale("log")
 
-for name, run in runs.items():
+for i, (name, run) in enumerate(runs.items()):
     labels, counts = np.unique(run.task_labels, return_counts=True)
+
     # Sort the labels and counts by counts in descending order
-    sorted_indices = np.argsort(-counts)  # Negative sign for descending order
+    sorted_indices = np.argsort(-counts)
     labels = labels[sorted_indices]
     counts = counts[sorted_indices]
 
     # Calculate positions for horizontal bars
-    positions = np.arange(len(labels)) + 0.8 * len(
-        runs.items()
-    )  # Base position for bars
+    positions = np.arange(len(labels))
+
+    # Compute the width between labels
+    width = 0.8 / (len(runs) + 1)
 
     # Create horizontal bar plot
-    ax.barh(positions, counts, height=0.8 / len(runs), label=name)
+    ax.barh(
+        positions + (i * width), counts, height=0.8 / len(runs), label=name
+    )
 
 ax.set_yticks(np.arange(len(labels)) + 0.4)  # Adjust tick positions
 ax.set_yticklabels(labels)
