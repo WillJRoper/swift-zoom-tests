@@ -10,7 +10,10 @@ sys.path.append(
 from task_parser import TaskParser
 
 # Define the base directory for the task files
-base = "../../../DMO/L0100N0169NBKG0064R5p0"
+base = "/snap8/scratch/dp004/dc-rope1/SWIFT/DMO/L0100N0169NBKG0064R5p0/"
+
+# Define the branches
+branches = ["zoom_long_range", "zoom_tl_void_mm"]
 
 # Define the test directories
 tests = [
@@ -29,9 +32,12 @@ non_periodic_tests = [
 
 # Parse all the task files
 runs = {}
-for test in non_periodic_tests:
-    runs[test] = TaskParser(f"{base}/{test}/thread_info-step64.dat")
-    print(test, runs[test].get_tasks()[-1])
+for branch in branches:
+    for test in non_periodic_tests:
+        runs[branch + "/" + test] = TaskParser(
+            f"{base}/{branch}/{test}/thread_info-step64.dat"
+        )
+        print(branch, test, runs[test].get_tasks()[-1])
 
 # Plot diagnostic histograms
 fig = plt.figure()
@@ -40,12 +46,14 @@ ax.semilogy()
 
 for name, run in runs.items():
     labels, counts = np.unique(run.task_labels, return_counts=True)
-
-    ax.bar(labels, counts, label=run)
+    if "long_range" in name:
+        ax.bar(labels, counts, label=name)
+    else:
+        ax.bar(labels, counts, label=name, linestyle="--")
 
 ax.set_xlabel("Task")
 ax.set_ylabel("Count")
 
 ax.legend()
 
-fig.savefig(f"plots/{test}.png")
+fig.savefig(f"plots/task_count_comp.png")
