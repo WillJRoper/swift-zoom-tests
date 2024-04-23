@@ -68,7 +68,8 @@ for i, (name, run) in enumerate(runs.items()):
     if "long_range" in name:
         # Adding hatching
         for bar in bars:
-            bar.set_hatch("\\")
+            bar.set_hatch("//")
+            bar.set_edgecolor("gray")
 
 ax.set_yticks(np.arange(len(labels)) + 0.2)
 ax.set_yticklabels(labels)
