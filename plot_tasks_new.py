@@ -58,19 +58,23 @@ for i, (name, run) in enumerate(runs.items()):
     width = 0.8 / (len(runs) + 1)
 
     # Create horizontal bar plot
-    ax.barh(
-        positions + (i * width) + (width * 0.5),
+    bars = ax.barh(
+        positions + (i * width),
         counts,
         height=0.75 / len(runs),
         label=name,
     )
+
+    if "long_range" in name:
+        # Adding hatching
+        for bar in bars:
+            bar.set_hatch("\\")
 
 ax.set_yticks(np.arange(len(labels)) + 0.2)
 ax.set_yticklabels(labels)
 ax.invert_yaxis()
 
 ax.set_xlabel("Count")
-ax.set_ylabel("Task")
 
 # Place the legend at the bottom of the plot
 ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=3)
