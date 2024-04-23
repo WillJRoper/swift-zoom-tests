@@ -40,7 +40,7 @@ for branch in branches:
         print(branch, test, runs[branch + "/" + test].get_tasks()[-1])
 
 # Plot diagnostic histograms
-fig = plt.figure()
+fig = plt.figure(figsize=(6, 12))
 ax = fig.add_subplot(111)
 ax.semilogy()
 
@@ -58,4 +58,4 @@ ax.tick_params(axis="x", labelrotation=90)
 
 ax.legend()
 
-fig.savefig("plots/task_count_comp.png")
+fig.savefig("plots/task_count_comp.png", bbox_inches="tight")
