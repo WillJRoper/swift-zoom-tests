@@ -42,6 +42,7 @@ for branch in branches:
 fig = plt.figure(figsize=(12, 6))
 ax = fig.add_subplot(111)
 ax.set_xscale("log")
+ax.grid(True)
 
 for i, (name, run) in enumerate(runs.items()):
     labels, counts = np.unique(run.task_labels, return_counts=True)
@@ -63,13 +64,14 @@ for i, (name, run) in enumerate(runs.items()):
         counts,
         height=0.75 / len(runs),
         label=name,
+        alpha=0.7,
     )
 
     if "long_range" in name:
         # Adding hatching
         for bar in bars:
             bar.set_hatch("//")
-            bar.set_edgecolor("gray")
+            bar.set_edgecolor(bar.get_facecolor())
 
 ax.set_yticks(np.arange(len(labels)) + 0.2)
 ax.set_yticklabels(labels)
