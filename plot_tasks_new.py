@@ -47,12 +47,14 @@ ax.semilogy()
 for name, run in runs.items():
     labels, counts = np.unique(run.task_labels, return_counts=True)
     if "long_range" in name:
-        ax.bar(labels, counts, label=name)
+        ax.plot(labels, counts, label=name)
     else:
-        ax.bar(labels, counts, label=name, linestyle="--")
+        ax.plot(labels, counts, label=name, linestyle="--")
 
 ax.set_xlabel("Task")
 ax.set_ylabel("Count")
+
+ax.tick_params(axis="x", labelrotation=90)
 
 ax.legend()
 
