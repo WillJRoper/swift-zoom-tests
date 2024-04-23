@@ -56,4 +56,4 @@ ax.set_ylabel("Count")
 
 ax.legend()
 
-fig.savefig(f"plots/task_count_comp.png")
+fig.savefig("plots/task_count_comp.png")
