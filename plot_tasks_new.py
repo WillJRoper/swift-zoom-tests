@@ -59,18 +59,21 @@ for i, (name, run) in enumerate(runs.items()):
 
     # Create horizontal bar plot
     ax.barh(
-        positions + (i * width), counts, height=0.8 / len(runs), label=name
+        positions + (i * width) + (width * 0.5),
+        counts,
+        height=0.75 / len(runs),
+        label=name,
     )
 
-ax.set_yticks(np.arange(len(labels)) + 0.4)  # Adjust tick positions
+ax.set_yticks(np.arange(len(labels)) + (0.8 / 2))
 ax.set_yticklabels(labels)
-ax.invert_yaxis()  # Invert the y-axis to have the largest count on top
+ax.invert_yaxis()
 
 ax.set_xlabel("Count")
 ax.set_ylabel("Task")
 
 # Place the legend at the bottom of the plot
-ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.05), ncol=3)
+ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=3)
 
 fig.tight_layout()
 fig.savefig("plots/task_count_comp_horizontal.png", bbox_inches="tight")
