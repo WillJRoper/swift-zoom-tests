@@ -37,7 +37,7 @@ for branch in branches:
         runs[branch + "/" + test] = TaskParser(
             f"{base}/{branch}/{test}/thread_info-step64.dat"
         )
-        print(branch, test, runs[test].get_tasks()[-1])
+        print(branch, test, runs[branch + "/" + test].get_tasks()[-1])
 
 # Plot diagnostic histograms
 fig = plt.figure()
