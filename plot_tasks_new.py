@@ -65,7 +65,7 @@ for i, (name, run) in enumerate(runs.items()):
         label=name,
     )
 
-ax.set_yticks(np.arange(len(labels)) + 0.6)
+ax.set_yticks(np.arange(len(labels)) + 0.2)
 ax.set_yticklabels(labels)
 ax.invert_yaxis()
 
