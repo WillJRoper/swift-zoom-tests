@@ -39,23 +39,34 @@ for branch in branches:
         )
         print(branch, test, runs[branch + "/" + test].get_tasks()[-1])
 
-# Plot diagnostic histograms
-fig = plt.figure(figsize=(6, 12))
+fig = plt.figure(figsize=(12, 6))  # Adjusted figure size for better fit
 ax = fig.add_subplot(111)
-ax.semilogy()
+ax.set_xscale("log")  # Use logarithmic scale for x-axis
 
 for name, run in runs.items():
     labels, counts = np.unique(run.task_labels, return_counts=True)
-    if "long_range" in name:
-        ax.plot(labels, counts, label=name)
-    else:
-        ax.plot(labels, counts, label=name, linestyle="--")
+    # Sort the labels and counts by counts in descending order
+    sorted_indices = np.argsort(-counts)  # Negative sign for descending order
+    labels = labels[sorted_indices]
+    counts = counts[sorted_indices]
 
-ax.set_xlabel("Task")
-ax.set_ylabel("Count")
+    # Calculate positions for horizontal bars
+    positions = np.arange(len(labels)) + 0.8 * len(
+        runs.items()
+    )  # Base position for bars
 
-ax.tick_params(axis="x", labelrotation=90)
+    # Create horizontal bar plot
+    ax.barh(positions, counts, height=0.8 / len(runs), label=name)
 
-ax.legend()
+ax.set_yticks(np.arange(len(labels)) + 0.4)  # Adjust tick positions
+ax.set_yticklabels(labels)
+ax.invert_yaxis()  # Invert the y-axis to have the largest count on top
 
-fig.savefig("plots/task_count_comp.png", bbox_inches="tight")
+ax.set_xlabel("Count")
+ax.set_ylabel("Task")
+
+# Place the legend at the bottom of the plot
+ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.05), ncol=3)
+
+fig.tight_layout()
+fig.savefig("plots/task_count_comp_horizontal.png", bbox_inches="tight")
