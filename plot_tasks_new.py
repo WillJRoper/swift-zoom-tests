@@ -272,7 +272,7 @@ def make_pair_mindist_plot(
 
     # Compute histogram and plot
     for name in dists.keys():
-        linestyle = "--" if "long_range" in name else "--"
+        linestyle = "--" if "long_range" in name else "-"
         H, _ = np.histogram(dists[name], bins=bins)
         ax.plot(bin_cents, H, label=name, linestyle=linestyle)
 
@@ -341,7 +341,7 @@ def make_pair_mpoledist_plot(
 
     # Compute histogram and plot
     for name in dists.keys():
-        linestyle = "--" if "long_range" in name else "--"
+        linestyle = "--" if "long_range" in name else "-"
         H, _ = np.histogram(dists[name], bins=bins)
         ax.plot(bin_cents, H, label=name, linestyle=linestyle)
 
