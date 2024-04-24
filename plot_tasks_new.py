@@ -40,7 +40,14 @@ for branch in branches:
         print(branch, test, runs[branch + "/" + test].get_tasks()[-1])
 
 
-def make_task_hist(runs, cell_type=None, cell_subtype=None, depth=None):
+def make_task_hist(
+    runs,
+    ci_type=None,
+    cj_type=None,
+    ci_subtype=None,
+    cj_subtype=None,
+    depth=None,
+):
     fig = plt.figure(figsize=(12, 6))
     ax = fig.add_subplot(111)
     ax.set_xscale("log")
@@ -48,7 +55,10 @@ def make_task_hist(runs, cell_type=None, cell_subtype=None, depth=None):
 
     for i, (name, run) in enumerate(runs.items()):
         mask = np.ones(len(run.task_labels), dtype=bool)
-        if cell_type is not None:
+        if (ci_type is not None and cj_type is None) or (
+            ci_type is None and cj_type is not None
+        ):
+            cell_type = ci_type if ci_type is not None else cj_type
             mask = np.logical_and(
                 mask,
                 np.logical_or(
@@ -56,12 +66,43 @@ def make_task_hist(runs, cell_type=None, cell_subtype=None, depth=None):
                     run.cj_types == cell_type,
                 ),
             )
-        if cell_subtype is not None:
+        if ci_type is not None and cj_type is not None:
+            mask = np.logical_and(
+                mask,
+                np.logical_or(
+                    np.logical_and(
+                        run.ci_types == ci_type,
+                        run.cj_types == cj_type,
+                    ),
+                    np.logical_and(
+                        run.ci_types == cj_type,
+                        run.cj_types == ci_type,
+                    ),
+                ),
+            )
+        if (ci_subtype is not None and cj_subtype is None) or (
+            ci_subtype is None and cj_subtype is not None
+        ):
+            cell_subtype = ci_subtype if ci_subtype is not None else cj_subtype
             mask = np.logical_and(
                 mask,
                 np.logical_or(
                     run.ci_subtypes == cell_subtype,
                     run.cj_subtypes == cell_subtype,
+                ),
+            )
+        if ci_subtype is not None and cj_subtype is not None:
+            mask = np.logical_and(
+                mask,
+                np.logical_or(
+                    np.logical_and(
+                        run.ci_subtypes == ci_subtype,
+                        run.cj_subtypes == cj_subtype,
+                    ),
+                    np.logical_and(
+                        run.ci_subtypes == cj_subtype,
+                        run.cj_subtypes == ci_subtype,
+                    ),
                 ),
             )
         if depth is not None:
@@ -121,13 +162,6 @@ def make_task_hist(runs, cell_type=None, cell_subtype=None, depth=None):
 
 
 make_task_hist(runs)
-make_task_hist(runs, cell_type=1)
-make_task_hist(runs, cell_type=2)
-make_task_hist(runs, cell_type=3)
-make_task_hist(runs, cell_subtype=1)
-make_task_hist(runs, cell_subtype=2)
-make_task_hist(runs, depth=0)
-make_task_hist(runs, depth=1)
-make_task_hist(runs, depth=2)
-make_task_hist(runs, depth=3)
-make_task_hist(runs, depth=4)
+make_task_hist(runs, ci_type=1, cj_type=1)
+make_task_hist(runs, ci_type=3, cj_type=3)
+make_task_hist(runs, ci_type=1, cj_type=3)
