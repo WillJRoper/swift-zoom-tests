@@ -150,10 +150,18 @@ def make_task_hist(
 
     # Define the filename
     filename = "plots/task_count_comp"
-    if cell_type is not None:
-        filename += f"_type{cell_type}"
-    if cell_subtype is not None:
-        filename += f"_subtype{cell_subtype}"
+    if ci_type is not None and cj_type is not None:
+        filename += f"_types{ci_type}-{cj_type}"
+    if ci_subtype is not None and cj_subtype is not None:
+        filename += f"_subtypes{ci_subtype}-{cj_subtype}"
+    if ci_type is not None and cj_type is None:
+        filename += f"_type{ci_type}"
+    if ci_subtype is not None and cj_subtype is None:
+        filename += f"_subtype{ci_subtype}"
+    if ci_type is None and cj_type is not None:
+        filename += f"_type{cj_type}"
+    if ci_subtype is None and cj_subtype is not None:
+        filename += f"_subtype{cj_subtype}"
     if depth is not None:
         filename += f"_depth{depth}"
 
