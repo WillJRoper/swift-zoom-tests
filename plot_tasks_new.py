@@ -272,8 +272,9 @@ def make_pair_mindist_plot(
 
     # Compute histogram and plot
     for name in dists.keys():
+        linestyle = "--" if "long_range" in name else "--"
         H, _ = np.histogram(dists[name], bins=bins)
-        ax.plot(bin_cents, H, label=name)
+        ax.plot(bin_cents, H, label=name, linestyle=linestyle)
 
     ax.set_xlabel("sqrt(cell_min_dist2) (U_L)")
     ax.set_ylabel("Count")
@@ -340,8 +341,9 @@ def make_pair_mpoledist_plot(
 
     # Compute histogram and plot
     for name in dists.keys():
+        linestyle = "--" if "long_range" in name else "--"
         H, _ = np.histogram(dists[name], bins=bins)
-        ax.plot(bin_cents, H, label=name)
+        ax.plot(bin_cents, H, label=name, linestyle=linestyle)
 
     ax.set_xlabel("Multipole CoM distance (U_L)")
     ax.set_ylabel("Count")
