@@ -182,6 +182,8 @@ def make_task_hist(
     fig.tight_layout()
     fig.savefig(filename, bbox_inches="tight")
 
+    plt.close(fig)
+
 
 def make_task_hist_time_weighted(
     runs,
@@ -260,6 +262,8 @@ def make_task_hist_time_weighted(
     fig.tight_layout()
     fig.savefig(filename, bbox_inches="tight")
 
+    plt.close(fig)
+
 
 def make_pair_mindist_plot(
     runs,
@@ -326,6 +330,8 @@ def make_pair_mindist_plot(
     fig.tight_layout()
     fig.savefig(filename, bbox_inches="tight")
 
+    plt.close(fig)
+
 
 def make_pair_mpoledist_plot(
     runs,
@@ -391,6 +397,7 @@ def make_pair_mpoledist_plot(
 
     fig.tight_layout()
     fig.savefig(filename, bbox_inches="tight")
+    plt.close(fig)
 
 
 make_task_hist(runs)
