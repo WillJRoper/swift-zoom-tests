@@ -40,7 +40,7 @@ for branch in branches:
         print(branch, test, runs[branch + "/" + test].get_tasks()[-1])
 
 
-def make_task_hist(cell_type=None, cell_subtype=None, depth=None):
+def make_task_hist(runs, cell_type=None, cell_subtype=None, depth=None):
     fig = plt.figure(figsize=(12, 6))
     ax = fig.add_subplot(111)
     ax.set_xscale("log")
