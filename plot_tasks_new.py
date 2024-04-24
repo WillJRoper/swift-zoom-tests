@@ -9,37 +9,6 @@ sys.path.append(
 
 from task_parser import TaskParser
 
-# Define the base directory for the task files
-base = "/snap8/scratch/dp004/dc-rope1/SWIFT/DMO/L0100N0169NBKG0064R5p0/"
-
-# Define the branches
-branches = ["zoom_long_range", "zoom_tl_void_mm"]
-
-# Define the test directories
-tests = [
-    "adaptive_nonperiodic_tasks",
-    "adaptive_periodic_tasks",
-    "adaptive_periodic512_tasks",
-    # "geometric_nonperiodic_tasks",
-    # "geometric_periodic_tasks",
-]
-
-
-# Define the non periodic tests
-non_periodic_tests = [
-    "adaptive_nonperiodic_tasks",
-    "geometric_nonperiodic_tasks",
-]
-
-# Parse all the task files
-runs = {}
-for branch in branches:
-    for test in tests:
-        runs[branch + "/" + test] = TaskParser(
-            f"{base}/{branch}/{test}/thread_info-step64.dat"
-        )
-        print(branch, test, runs[branch + "/" + test].get_tasks()[-1])
-
 
 def make_mask(
     run,
@@ -128,7 +97,8 @@ def make_task_hist(
         labels, counts = np.unique(run.task_labels[mask], return_counts=True)
 
         # Sort the labels and counts by counts in descending order
-        sorted_indices = np.argsort(-counts)
+        if i == 0:
+            sorted_indices = np.argsort(-counts)
         labels = labels[sorted_indices]
         counts = counts[sorted_indices]
 
@@ -208,7 +178,8 @@ def make_task_hist_time_weighted(
         )
 
         # Sort the labels and counts by counts in descending order
-        sorted_indices = np.argsort(-counts)
+        if i == 0:
+            sorted_indices = np.argsort(-counts)
         labels = labels[sorted_indices]
         counts = counts[sorted_indices]
 
@@ -304,7 +275,7 @@ def make_pair_mindist_plot(
         H, _ = np.histogram(dists[name], bins=bins)
         ax.plot(bin_cents, H, label=name)
 
-    ax.set_xlabel("cell_min_dist2")
+    ax.set_xlabel("sqrt(cell_min_dist2) (U_L)")
     ax.set_ylabel("Count")
 
     # Place the legend at the bottom of the plot
@@ -372,7 +343,7 @@ def make_pair_mpoledist_plot(
         H, _ = np.histogram(dists[name], bins=bins)
         ax.plot(bin_cents, H, label=name)
 
-    ax.set_xlabel("cell_min_dist2")
+    ax.set_xlabel("Multipole CoM distance (U_L)")
     ax.set_ylabel("Count")
 
     # Place the legend at the bottom of the plot
@@ -400,32 +371,63 @@ def make_pair_mpoledist_plot(
     plt.close(fig)
 
 
-make_task_hist(runs)
-make_task_hist(runs, ci_type=1, cj_type=1)
-make_task_hist(runs, ci_type=3, cj_type=3)
-make_task_hist(runs, ci_type=1, cj_type=3)
+if __name__ == "__main__":
+    # Define the base directory for the task files
+    base = "/snap8/scratch/dp004/dc-rope1/SWIFT/DMO/L0100N0169NBKG0064R5p0/"
 
-make_task_hist(runs, depth=0)
-make_task_hist(runs, ci_type=1, cj_type=1, depth=0)
-make_task_hist(runs, ci_type=1, cj_type=3, depth=0)
-make_task_hist(runs, ci_type=3, cj_type=3, depth=0)
+    # Define the branches
+    branches = ["zoom_long_range", "zoom_tl_void_mm"]
 
-make_task_hist_time_weighted(runs)
-make_task_hist_time_weighted(runs, ci_type=1, cj_type=1)
-make_task_hist_time_weighted(runs, ci_type=3, cj_type=3)
-make_task_hist_time_weighted(runs, ci_type=1, cj_type=3)
+    # Define the test directories
+    tests = [
+        # "adaptive_nonperiodic_tasks",
+        "adaptive_periodic_tasks",
+        "adaptive_periodic512_tasks",
+        # "geometric_nonperiodic_tasks",
+        # "geometric_periodic_tasks",
+    ]
 
-make_task_hist_time_weighted(runs, depth=0)
-make_task_hist_time_weighted(runs, ci_type=1, cj_type=1, depth=0)
-make_task_hist_time_weighted(runs, ci_type=1, cj_type=3, depth=0)
-make_task_hist_time_weighted(runs, ci_type=3, cj_type=3, depth=0)
+    # Define the non periodic tests
+    non_periodic_tests = [
+        "adaptive_nonperiodic_tasks",
+        "geometric_nonperiodic_tasks",
+    ]
 
-make_pair_mindist_plot(runs)
-make_pair_mindist_plot(runs, ci_type=1, cj_type=1)
-make_pair_mindist_plot(runs, ci_type=3, cj_type=3)
-make_pair_mindist_plot(runs, ci_type=1, cj_type=3)
+    # Parse all the task files
+    runs = {}
+    for branch in branches:
+        for test in tests:
+            runs[branch + "/" + test] = TaskParser(
+                f"{base}/{branch}/{test}/thread_info-step64.dat"
+            )
+            print(branch, test, runs[branch + "/" + test].get_tasks()[-1])
 
-make_pair_mpoledist_plot(runs)
-make_pair_mpoledist_plot(runs, ci_type=1, cj_type=1)
-make_pair_mpoledist_plot(runs, ci_type=3, cj_type=3)
-make_pair_mpoledist_plot(runs, ci_type=1, cj_type=3)
+    make_task_hist(runs)
+    make_task_hist(runs, ci_type=1, cj_type=1)
+    make_task_hist(runs, ci_type=3, cj_type=3)
+    make_task_hist(runs, ci_type=1, cj_type=3)
+
+    make_task_hist(runs, depth=0)
+    make_task_hist(runs, ci_type=1, cj_type=1, depth=0)
+    make_task_hist(runs, ci_type=1, cj_type=3, depth=0)
+    make_task_hist(runs, ci_type=3, cj_type=3, depth=0)
+
+    make_task_hist_time_weighted(runs)
+    make_task_hist_time_weighted(runs, ci_type=1, cj_type=1)
+    make_task_hist_time_weighted(runs, ci_type=3, cj_type=3)
+    make_task_hist_time_weighted(runs, ci_type=1, cj_type=3)
+
+    make_task_hist_time_weighted(runs, depth=0)
+    make_task_hist_time_weighted(runs, ci_type=1, cj_type=1, depth=0)
+    make_task_hist_time_weighted(runs, ci_type=1, cj_type=3, depth=0)
+    make_task_hist_time_weighted(runs, ci_type=3, cj_type=3, depth=0)
+
+    make_pair_mindist_plot(runs)
+    make_pair_mindist_plot(runs, ci_type=1, cj_type=1)
+    make_pair_mindist_plot(runs, ci_type=3, cj_type=3)
+    make_pair_mindist_plot(runs, ci_type=1, cj_type=3)
+
+    make_pair_mpoledist_plot(runs)
+    make_pair_mpoledist_plot(runs, ci_type=1, cj_type=1)
+    make_pair_mpoledist_plot(runs, ci_type=3, cj_type=3)
+    make_pair_mpoledist_plot(runs, ci_type=1, cj_type=3)
