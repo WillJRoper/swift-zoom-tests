@@ -20,7 +20,7 @@ tests = [
     "adaptive_nonperiodic_tasks",
     "adaptive_periodic_tasks",
     "geometric_nonperiodic_tasks",
-    "geometric_periodic_tasks",
+    # "geometric_periodic_tasks",
 ]
 
 
@@ -33,7 +33,7 @@ non_periodic_tests = [
 # Parse all the task files
 runs = {}
 for branch in branches:
-    for test in non_periodic_tests:
+    for test in tests:
         runs[branch + "/" + test] = TaskParser(
             f"{base}/{branch}/{test}/thread_info-step64.dat"
         )
