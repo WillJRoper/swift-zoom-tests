@@ -235,7 +235,7 @@ def make_task_hist_time_weighted(
     ax.set_yticklabels(labels)
     ax.invert_yaxis()
 
-    ax.set_xlabel("Count")
+    ax.set_xlabel("Time (ms)")
 
     # Place the legend at the bottom of the plot
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=3)
@@ -261,15 +261,136 @@ def make_task_hist_time_weighted(
     fig.savefig(filename, bbox_inches="tight")
 
 
-def make_pair_dist_plot(
+def make_pair_mindist_plot(
     runs,
     ci_type=None,
     cj_type=None,
     ci_subtype=None,
     cj_subtype=None,
     depth=None,
+    nbins=30,
 ):
-    pass
+    # Make the figure
+    fig = plt.figure(figsize=(12, 6))
+    ax = fig.add_subplot(111)
+    ax.set_yscale("log")
+    ax.grid(True)
+
+    # Collect the distances
+    dists = {}
+    for i, (name, run) in enumerate(runs.items()):
+        mask = make_mask(run, ci_type, cj_type, ci_subtype, cj_subtype, depth)
+
+        # Ensure we only have pair tasks (i.e. the string "pair" is in the
+        # task label)
+        mask = np.logical_and(
+            mask, np.array(["pair" in t for t in run.task_labels])
+        )
+
+        # Get the distances
+        dists[name] = run.min_dists[mask]
+
+    # Construct the bins
+    all_dists = np.concatenate(list(dists.values()))
+    bins = np.linspace(all_dists.min(), all_dists.max(), nbins + 1)
+    bin_cents = (bins[:-1] + bins[1:]) / 2
+
+    # Compute histogram and plot
+    for name in dists.keys():
+        H, _ = np.histogram(dists[name], bins=bins)
+        ax.plot(bin_cents, H, label=name)
+
+    ax.set_xlabel("cell_min_dist2")
+    ax.set_ylabel("Count")
+
+    # Place the legend at the bottom of the plot
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=3)
+
+    # Define the filename
+    filename = "plots/pair_min_dist_comp"
+    if ci_type is not None and cj_type is not None:
+        filename += f"_types{ci_type}-{cj_type}"
+    if ci_subtype is not None and cj_subtype is not None:
+        filename += f"_subtypes{ci_subtype}-{cj_subtype}"
+    if ci_type is not None and cj_type is None:
+        filename += f"_type{ci_type}"
+    if ci_subtype is not None and cj_subtype is None:
+        filename += f"_subtype{ci_subtype}"
+    if ci_type is None and cj_type is not None:
+        filename += f"_type{cj_type}"
+    if ci_subtype is None and cj_subtype is not None:
+        filename += f"_subtype{cj_subtype}"
+    if depth is not None:
+        filename += f"_depth{depth}"
+
+    fig.tight_layout()
+    fig.savefig(filename, bbox_inches="tight")
+
+
+def make_pair_mpoledist_plot(
+    runs,
+    ci_type=None,
+    cj_type=None,
+    ci_subtype=None,
+    cj_subtype=None,
+    depth=None,
+    nbins=30,
+):
+    # Make the figure
+    fig = plt.figure(figsize=(12, 6))
+    ax = fig.add_subplot(111)
+    ax.set_yscale("log")
+    ax.grid(True)
+
+    # Collect the distances
+    dists = {}
+    for i, (name, run) in enumerate(runs.items()):
+        mask = make_mask(run, ci_type, cj_type, ci_subtype, cj_subtype, depth)
+
+        # Ensure we only have pair tasks (i.e. the string "pair" is in the
+        # task label)
+        mask = np.logical_and(
+            mask, np.array(["pair" in t for t in run.task_labels])
+        )
+
+        # Get the distances
+        dists[name] = run.mpole_dists[mask]
+
+    # Construct the bins
+    all_dists = np.concatenate(list(dists.values()))
+    bins = np.linspace(all_dists.min(), all_dists.max(), nbins + 1)
+    bin_cents = (bins[:-1] + bins[1:]) / 2
+
+    # Compute histogram and plot
+    for name in dists.keys():
+        H, _ = np.histogram(dists[name], bins=bins)
+        ax.plot(bin_cents, H, label=name)
+
+    ax.set_xlabel("cell_min_dist2")
+    ax.set_ylabel("Count")
+
+    # Place the legend at the bottom of the plot
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=3)
+
+    # Define the filename
+    filename = "plots/pair_mpole_dist_comp"
+    if ci_type is not None and cj_type is not None:
+        filename += f"_types{ci_type}-{cj_type}"
+    if ci_subtype is not None and cj_subtype is not None:
+        filename += f"_subtypes{ci_subtype}-{cj_subtype}"
+    if ci_type is not None and cj_type is None:
+        filename += f"_type{ci_type}"
+    if ci_subtype is not None and cj_subtype is None:
+        filename += f"_subtype{ci_subtype}"
+    if ci_type is None and cj_type is not None:
+        filename += f"_type{cj_type}"
+    if ci_subtype is None and cj_subtype is not None:
+        filename += f"_subtype{cj_subtype}"
+    if depth is not None:
+        filename += f"_depth{depth}"
+
+    fig.tight_layout()
+    fig.savefig(filename, bbox_inches="tight")
 
 
 make_task_hist(runs)
@@ -291,3 +412,13 @@ make_task_hist_time_weighted(runs, depth=0)
 make_task_hist_time_weighted(runs, ci_type=1, cj_type=1, depth=0)
 make_task_hist_time_weighted(runs, ci_type=1, cj_type=3, depth=0)
 make_task_hist_time_weighted(runs, ci_type=3, cj_type=3, depth=0)
+
+make_pair_mindist_plot(runs)
+make_pair_mindist_plot(runs, ci_type=1, cj_type=1)
+make_pair_mindist_plot(runs, ci_type=3, cj_type=3)
+make_pair_mindist_plot(runs, ci_type=1, cj_type=3)
+
+make_pair_mpoledist_plot(runs)
+make_pair_mpoledist_plot(runs, ci_type=1, cj_type=1)
+make_pair_mpoledist_plot(runs, ci_type=3, cj_type=3)
+make_pair_mpoledist_plot(runs, ci_type=1, cj_type=3)
