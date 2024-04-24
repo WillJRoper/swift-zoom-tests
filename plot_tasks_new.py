@@ -381,6 +381,7 @@ if __name__ == "__main__":
     branches = [
         "zoom_tl_void_mm",
         "zoom_long_range",
+        "zoom_neighbour_splitting",
     ]
 
     # Define the test directories
