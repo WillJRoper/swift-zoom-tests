@@ -19,7 +19,8 @@ branches = ["zoom_long_range", "zoom_tl_void_mm"]
 tests = [
     "adaptive_nonperiodic_tasks",
     "adaptive_periodic_tasks",
-    "geometric_nonperiodic_tasks",
+    "adaptive_periodic512_tasks",
+    # "geometric_nonperiodic_tasks",
     # "geometric_periodic_tasks",
 ]
 
@@ -40,6 +41,74 @@ for branch in branches:
         print(branch, test, runs[branch + "/" + test].get_tasks()[-1])
 
 
+def make_mask(
+    run,
+    ci_type=None,
+    cj_type=None,
+    ci_subtype=None,
+    cj_subtype=None,
+    depth=None,
+):
+    mask = np.ones(len(run.task_labels), dtype=bool)
+    if (ci_type is not None and cj_type is None) or (
+        ci_type is None and cj_type is not None
+    ):
+        cell_type = ci_type if ci_type is not None else cj_type
+        mask = np.logical_and(
+            mask,
+            np.logical_or(
+                run.ci_types == cell_type,
+                run.cj_types == cell_type,
+            ),
+        )
+    if ci_type is not None and cj_type is not None:
+        mask = np.logical_and(
+            mask,
+            np.logical_or(
+                np.logical_and(
+                    run.ci_types == ci_type,
+                    run.cj_types == cj_type,
+                ),
+                np.logical_and(
+                    run.ci_types == cj_type,
+                    run.cj_types == ci_type,
+                ),
+            ),
+        )
+    if (ci_subtype is not None and cj_subtype is None) or (
+        ci_subtype is None and cj_subtype is not None
+    ):
+        cell_subtype = ci_subtype if ci_subtype is not None else cj_subtype
+        mask = np.logical_and(
+            mask,
+            np.logical_or(
+                run.ci_subtypes == cell_subtype,
+                run.cj_subtypes == cell_subtype,
+            ),
+        )
+    if ci_subtype is not None and cj_subtype is not None:
+        mask = np.logical_and(
+            mask,
+            np.logical_or(
+                np.logical_and(
+                    run.ci_subtypes == ci_subtype,
+                    run.cj_subtypes == cj_subtype,
+                ),
+                np.logical_and(
+                    run.ci_subtypes == cj_subtype,
+                    run.cj_subtypes == ci_subtype,
+                ),
+            ),
+        )
+    if depth is not None:
+        mask = np.logical_and(
+            mask,
+            np.logical_or(run.ci_depths == depth, run.cj_depths == depth),
+        )
+
+    return mask
+
+
 def make_task_hist(
     runs,
     ci_type=None,
@@ -54,62 +123,7 @@ def make_task_hist(
     ax.grid(True)
 
     for i, (name, run) in enumerate(runs.items()):
-        mask = np.ones(len(run.task_labels), dtype=bool)
-        if (ci_type is not None and cj_type is None) or (
-            ci_type is None and cj_type is not None
-        ):
-            cell_type = ci_type if ci_type is not None else cj_type
-            mask = np.logical_and(
-                mask,
-                np.logical_or(
-                    run.ci_types == cell_type,
-                    run.cj_types == cell_type,
-                ),
-            )
-        if ci_type is not None and cj_type is not None:
-            mask = np.logical_and(
-                mask,
-                np.logical_or(
-                    np.logical_and(
-                        run.ci_types == ci_type,
-                        run.cj_types == cj_type,
-                    ),
-                    np.logical_and(
-                        run.ci_types == cj_type,
-                        run.cj_types == ci_type,
-                    ),
-                ),
-            )
-        if (ci_subtype is not None and cj_subtype is None) or (
-            ci_subtype is None and cj_subtype is not None
-        ):
-            cell_subtype = ci_subtype if ci_subtype is not None else cj_subtype
-            mask = np.logical_and(
-                mask,
-                np.logical_or(
-                    run.ci_subtypes == cell_subtype,
-                    run.cj_subtypes == cell_subtype,
-                ),
-            )
-        if ci_subtype is not None and cj_subtype is not None:
-            mask = np.logical_and(
-                mask,
-                np.logical_or(
-                    np.logical_and(
-                        run.ci_subtypes == ci_subtype,
-                        run.cj_subtypes == cj_subtype,
-                    ),
-                    np.logical_and(
-                        run.ci_subtypes == cj_subtype,
-                        run.cj_subtypes == ci_subtype,
-                    ),
-                ),
-            )
-        if depth is not None:
-            mask = np.logical_and(
-                mask,
-                np.logical_or(run.ci_depths == depth, run.cj_depths == depth),
-            )
+        mask = make_mask(run, ci_type, cj_type, ci_subtype, cj_subtype, depth)
 
         labels, counts = np.unique(run.task_labels[mask], return_counts=True)
 
@@ -183,62 +197,7 @@ def make_task_hist_time_weighted(
     ax.grid(True)
 
     for i, (name, run) in enumerate(runs.items()):
-        mask = np.ones(len(run.task_labels), dtype=bool)
-        if (ci_type is not None and cj_type is None) or (
-            ci_type is None and cj_type is not None
-        ):
-            cell_type = ci_type if ci_type is not None else cj_type
-            mask = np.logical_and(
-                mask,
-                np.logical_or(
-                    run.ci_types == cell_type,
-                    run.cj_types == cell_type,
-                ),
-            )
-        if ci_type is not None and cj_type is not None:
-            mask = np.logical_and(
-                mask,
-                np.logical_or(
-                    np.logical_and(
-                        run.ci_types == ci_type,
-                        run.cj_types == cj_type,
-                    ),
-                    np.logical_and(
-                        run.ci_types == cj_type,
-                        run.cj_types == ci_type,
-                    ),
-                ),
-            )
-        if (ci_subtype is not None and cj_subtype is None) or (
-            ci_subtype is None and cj_subtype is not None
-        ):
-            cell_subtype = ci_subtype if ci_subtype is not None else cj_subtype
-            mask = np.logical_and(
-                mask,
-                np.logical_or(
-                    run.ci_subtypes == cell_subtype,
-                    run.cj_subtypes == cell_subtype,
-                ),
-            )
-        if ci_subtype is not None and cj_subtype is not None:
-            mask = np.logical_and(
-                mask,
-                np.logical_or(
-                    np.logical_and(
-                        run.ci_subtypes == ci_subtype,
-                        run.cj_subtypes == cj_subtype,
-                    ),
-                    np.logical_and(
-                        run.ci_subtypes == cj_subtype,
-                        run.cj_subtypes == ci_subtype,
-                    ),
-                ),
-            )
-        if depth is not None:
-            mask = np.logical_and(
-                mask,
-                np.logical_or(run.ci_depths == depth, run.cj_depths == depth),
-            )
+        mask = make_mask(run, ci_type, cj_type, ci_subtype, cj_subtype, depth)
 
         # Loop over tasks collecting their runtime
         labels = np.unique(run.task_labels[mask])
@@ -300,6 +259,17 @@ def make_task_hist_time_weighted(
 
     fig.tight_layout()
     fig.savefig(filename, bbox_inches="tight")
+
+
+def make_pair_dist_plot(
+    runs,
+    ci_type=None,
+    cj_type=None,
+    ci_subtype=None,
+    cj_subtype=None,
+    depth=None,
+):
+    pass
 
 
 make_task_hist(runs)
