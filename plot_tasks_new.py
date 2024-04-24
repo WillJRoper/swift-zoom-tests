@@ -30,17 +30,17 @@ non_periodic_tests = [
     "geometric_nonperiodic_tasks",
 ]
 
+# Parse all the task files
+runs = {}
+for branch in branches:
+    for test in non_periodic_tests:
+        runs[branch + "/" + test] = TaskParser(
+            f"{base}/{branch}/{test}/thread_info-step64.dat"
+        )
+        print(branch, test, runs[branch + "/" + test].get_tasks()[-1])
+
 
 def make_task_hist(cell_type=None, cell_subtype=None, depth=None):
-    # Parse all the task files
-    runs = {}
-    for branch in branches:
-        for test in non_periodic_tests:
-            runs[branch + "/" + test] = TaskParser(
-                f"{base}/{branch}/{test}/thread_info-step64.dat"
-            )
-            print(branch, test, runs[branch + "/" + test].get_tasks()[-1])
-
     fig = plt.figure(figsize=(12, 6))
     ax = fig.add_subplot(111)
     ax.set_xscale("log")
