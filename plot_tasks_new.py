@@ -378,7 +378,10 @@ if __name__ == "__main__":
     base = "/snap8/scratch/dp004/dc-rope1/SWIFT/DMO/L0100N0169NBKG0064R5p0/"
 
     # Define the branches
-    branches = ["zoom_long_range", "zoom_tl_void_mm"]
+    branches = [
+        "zoom_tl_void_mm",
+        "zoom_long_range",
+    ]
 
     # Define the test directories
     tests = [
