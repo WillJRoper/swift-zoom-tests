@@ -243,7 +243,7 @@ def make_task_hist_time_weighted(
         # Loop over tasks collecting their runtime
         labels = np.unique(run.task_labels[mask])
         counts = np.array(
-            [np.sum(run.dt[mask][run.task_lables[mask] == k]) for k in labels]
+            [np.sum(run.dt[mask][run.task_labels[mask] == k]) for k in labels]
         )
 
         # Sort the labels and counts by counts in descending order
