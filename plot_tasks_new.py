@@ -386,7 +386,7 @@ if __name__ == "__main__":
     # Define the test directories
     tests = [
         # "adaptive_nonperiodic_tasks",
-        "adaptive_periodic_tasks",
+        "adaptive_periodic256_tasks",
         "adaptive_periodic512_tasks",
         # "geometric_nonperiodic_tasks",
         # "geometric_periodic_tasks",
