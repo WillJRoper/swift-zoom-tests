@@ -100,7 +100,9 @@ def make_task_hist_split(runs):
                 if run.tasks[i].cj_subtype != "Regular":
                     labels_dict[name][i] += f"({run.tasks[i].cj_subtype})"
             labels_dict[name][i] += f"@{run.tasks[i].ci_depth}"
-            types[task] = types.get(labels_dict[name][i].split("@")[0], 0) + 1
+            types[labels_dict[name][i].split("@")[0]] = (
+                types.get(labels_dict[name][i].split("@")[0], 0) + 1
+            )
 
     # Get the sorting indices based on types
     types_arr = list(types.keys())
