@@ -79,7 +79,7 @@ def make_mask(
 
 
 def make_task_hist_split(runs):
-    fig = plt.figure(figsize=(12, 12))
+    fig = plt.figure(figsize=(12, 16))
     ax = fig.add_subplot(111)
     ax.set_xscale("log")
     ax.grid(True)
@@ -88,18 +88,18 @@ def make_task_hist_split(runs):
     labels_dict = {
         name: np.zeros(run.ntasks, dtype=object) for name, run in runs.items()
     }
+    types = {}
     for name, run in runs.items():
         for i in range(run.ntasks):
+            types[run.tasks[i].type] = types.get(run.tasks[i].type, 0) + 1
             if run.tasks[i].type == "pair":
                 labels_dict[name][i] = "/".join(
                     [
                         run.tasks[i].type,
-                        str(run.tasks[i].ci_type),
-                        str(run.tasks[i].cj_type),
-                        str(run.tasks[i].ci_subtype),
-                        str(run.tasks[i].cj_subtype),
-                        str(run.tasks[i].ci_depth),
-                        str(run.tasks[i].cj_depth),
+                        f"{run.tasks[i].ci_type}({run.tasks[i].ci_subtype})"
+                        f"@{run.tasks[i].ci_depth}",
+                        f"{run.tasks[i].ci_type}({run.tasks[i].ci_subtype})"
+                        f"@{run.tasks[i].cj_depth}",
                     ]
                 )
             else:
@@ -112,12 +112,17 @@ def make_task_hist_split(runs):
                     ]
                 )
 
+    # Get the sorting indices based on types
+    types_arr = list(types.keys())
+    counts_arr = np.array(list(types.values()))
+    sinds_arr = np.argsort(-counts_arr)
+    sinds = {k: ind for k, ind in zip(types_arr, sinds_arr)}
+
     for i, (name, run) in enumerate(runs.items()):
         labels, counts = np.unique(labels_dict[name], return_counts=True)
 
         # Sort the labels and counts by counts in descending order
-        if i == 0:
-            sorted_indices = np.argsort(-counts)
+        sorted_indices = np.array([sinds[k] for k in labels])
         labels = labels[sorted_indices]
         counts = counts[sorted_indices]
 
@@ -135,12 +140,6 @@ def make_task_hist_split(runs):
             label=name,
             alpha=0.7,
         )
-
-        if "long_range" in name:
-            # Adding hatching
-            for bar in bars:
-                bar.set_hatch("//")
-                bar.set_edgecolor(bar.get_facecolor())
 
     ax.set_yticks(np.arange(len(labels)) + 0.2)
     ax.set_yticklabels(labels)
@@ -198,12 +197,6 @@ def make_task_hist(
             label=name,
             alpha=0.7,
         )
-
-        if "long_range" in name:
-            # Adding hatching
-            for bar in bars:
-                bar.set_hatch("//")
-                bar.set_edgecolor(bar.get_facecolor())
 
     ax.set_yticks(np.arange(len(labels)) + 0.2)
     ax.set_yticklabels(labels)
@@ -279,12 +272,6 @@ def make_task_hist_time_weighted(
             label=name,
             alpha=0.7,
         )
-
-        if "long_range" in name:
-            # Adding hatching
-            for bar in bars:
-                bar.set_hatch("//")
-                bar.set_edgecolor(bar.get_facecolor())
 
     ax.set_yticks(np.arange(len(labels)) + 0.2)
     ax.set_yticklabels(labels)
@@ -462,7 +449,6 @@ if __name__ == "__main__":
     # Define the branches
     branches = [
         "zoom_tl_void_mm",
-        "zoom_long_range",
         "zoom_neighbour_splitting",
     ]
 
