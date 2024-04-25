@@ -78,7 +78,7 @@ def make_mask(
     return mask
 
 
-def make_task_hist_time_split(runs):
+def make_task_hist_time_split(runs, order_by_count=True):
     fig = plt.figure(figsize=(12, 16))
     ax = fig.add_subplot(111)
     ax.set_xscale("log")
@@ -107,14 +107,24 @@ def make_task_hist_time_split(runs):
     for i, (name, run) in enumerate(runs.items()):
         labels, counts = np.unique(labels_dict[name], return_counts=True)
 
-        # Sort the labels
-        if i == 0:
-            sinds = np.argsort(-counts)
-        labels = labels[sinds]
-        counts = counts[sinds]
+        if order_by_count:
+            # Sort the labels
+            if i == 0:
+                sinds = np.argsort(-counts)
+            labels = labels[sinds]
+            counts = counts[sinds]
 
-        # Unpack the times
-        times = np.array([time_dict[l] for l in labels])
+            # Unpack the times
+            times = np.array([time_dict[l] for l in labels])
+        else:
+            # Unpack the times
+            times = np.array([time_dict[l] for l in labels])
+
+            # Sort the labels by time
+            if i == 0:
+                sinds = np.argsort(-times)
+            labels = labels[sinds]
+            times = times[sinds]
 
         # Calculate positions for horizontal bars
         positions = np.arange(len(labels))
@@ -141,7 +151,10 @@ def make_task_hist_time_split(runs):
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.05), ncol=3)
 
     # Define the filename
-    filename = "plots/task_time_comp_split.png"
+    filename = "plots/task_time_comp_split"
+    if order_by_count:
+        filename += "_count_ordered"
+    filename += ".png"
 
     fig.tight_layout()
     fig.savefig(filename, bbox_inches="tight")
@@ -529,6 +542,7 @@ if __name__ == "__main__":
 
     make_task_hist_split(runs)
     make_task_hist_time_split(runs)
+    make_task_hist_time_split(runs, order_by_count=False)
 
     make_task_hist(runs)
     make_task_hist(runs, ci_type=1, cj_type=1)
