@@ -93,23 +93,18 @@ def make_task_hist_split(runs):
         for i in range(run.ntasks):
             types[run.tasks[i].type] = types.get(run.tasks[i].type, 0) + 1
             if run.tasks[i].type == "pair":
-                labels_dict[name][i] = "/".join(
-                    [
-                        run.tasks[i].type,
-                        f"{run.tasks[i].ci_type}({run.tasks[i].ci_subtype})"
-                        f"@{run.tasks[i].ci_depth}",
-                        f"{run.tasks[i].ci_type}({run.tasks[i].ci_subtype})"
-                        f"@{run.tasks[i].cj_depth}",
-                    ]
+                labels_dict[name][i] = (
+                    f"{run.tasks[i].type}:"
+                    f"{run.tasks[i].ci_type}({run.tasks[i].ci_subtype})"
+                    f"@{run.tasks[i].ci_depth}->"
+                    f"{run.tasks[i].ci_type}({run.tasks[i].ci_subtype})"
+                    f"@{run.tasks[i].cj_depth}"
                 )
             else:
-                labels_dict[name][i] = "/".join(
-                    [
-                        run.tasks[i].type,
-                        str(run.tasks[i].ci_type),
-                        str(run.tasks[i].ci_subtype),
-                        str(run.tasks[i].ci_depth),
-                    ]
+                labels_dict[name][i] = (
+                    f"{run.tasks[i].type}:"
+                    f"{run.tasks[i].ci_type}({run.tasks[i].ci_subtype})"
+                    f"@{run.tasks[i].ci_depth}"
                 )
 
     # Get the sorting indices based on types
@@ -122,7 +117,7 @@ def make_task_hist_split(runs):
         labels, counts = np.unique(labels_dict[name], return_counts=True)
 
         # Sort the labels and counts by counts in descending order
-        sorted_indices = np.array([sinds[k] for k in labels])
+        sorted_indices = np.array([sinds[k.split(":")[0]] for k in labels])
         labels = labels[sorted_indices]
         counts = counts[sorted_indices]
 
