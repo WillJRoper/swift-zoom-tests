@@ -113,17 +113,30 @@ def make_task_hist_split(runs):
     counts_arr = np.array(list(types.values()))
     sinds_arr = np.argsort(-counts_arr)
     sinds = {k: ind for k, ind in zip(types_arr, sinds_arr)}
-    print(sinds)
 
     for i, (name, run) in enumerate(runs.items()):
-        labels, counts = np.unique(labels_dict[name], return_counts=True)
+        _labels, _counts = np.unique(labels_dict[name], return_counts=True)
 
-        # Sort the labels and counts by counts in descending order
-        sorted_indices = np.array([sinds[k.split(":")[0]] for k in labels])
-        print(name, labels, counts, sorted_indices)
-        labels = labels[sorted_indices]
-        counts = counts[sorted_indices]
-        print(name, labels, counts)
+        # Sort the labels and counts by category
+        labels_split = [[] for lab in _labels]
+        counts_split = [[] for lab in _labels]
+        for lab, c in zip(_labels, _counts):
+            labels_split[sinds[lab.split(":")[0]]].append(lab)
+            counts_split[sinds[lab.split(":")[0]]].append(c)
+
+        # Sort each category
+        labels = []
+        counts = []
+        for i in range(len(labels_split)):
+            cat = np.array(labels_split[i])
+            cat_count = np.array(counts_split[i])
+            sinds = np.argsort(-cat_count)
+            labels.extend(cat[sinds])
+            counts.extend(cat_count[sinds])
+
+        # And convert to arrays
+        labels = np.array(labels)
+        counts = np.array(counts)
 
         # Calculate positions for horizontal bars
         positions = np.arange(len(labels))
