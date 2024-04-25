@@ -92,6 +92,7 @@ def make_task_hist_split(runs):
     for name, run in runs.items():
         for i in range(run.ntasks):
             types[run.tasks[i].task] = types.get(run.tasks[i].task, 0) + 1
+            print(run.tasks[i].task)
             if "pair" in run.tasks[i].task:
                 labels_dict[name][i] = (
                     f"{run.tasks[i].task}:"
