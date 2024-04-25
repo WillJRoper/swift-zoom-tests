@@ -112,7 +112,7 @@ def make_task_hist_split(runs):
     types_arr = list(types.keys())
     counts_arr = np.array(list(types.values()))
     sinds_arr = np.argsort(-counts_arr)
-    sinds = {k: ind for k, ind in zip(types_arr, sinds_arr)}
+    type_sinds = {k: ind for k, ind in zip(types_arr, sinds_arr)}
 
     for i, (name, run) in enumerate(runs.items()):
         _labels, _counts = np.unique(labels_dict[name], return_counts=True)
@@ -121,10 +121,8 @@ def make_task_hist_split(runs):
         labels_split = [[] for lab in _labels]
         counts_split = [[] for lab in _labels]
         for lab, c in zip(_labels, _counts):
-            print(lab, lab.split(":"), lab.split(":")[0])
-            print(sinds[lab.split(":")[0]])
-            labels_split[sinds[lab.split(":")[0]]].append(lab)
-            counts_split[sinds[lab.split(":")[0]]].append(c)
+            labels_split[type_sinds[lab.split(":")[0]]].append(lab)
+            counts_split[type_sinds[lab.split(":")[0]]].append(c)
 
         # Sort each category
         labels = []
