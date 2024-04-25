@@ -114,6 +114,7 @@ def make_task_hist_split(runs):
     counts_arr = np.array(list(types.values()))
     sinds_arr = np.argsort(-counts_arr)
     sinds = {k: ind for k, ind in zip(types_arr, sinds_arr)}
+    print(sinds)
 
     for i, (name, run) in enumerate(runs.items()):
         labels, counts = np.unique(labels_dict[name], return_counts=True)
