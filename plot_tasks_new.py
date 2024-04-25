@@ -94,6 +94,7 @@ def make_task_hist_split(runs):
             task = run.task_labels[i]
             types[task] = types.get(task, 0) + 1
             if "pair" in task:
+                print(task)
                 labels_dict[name][i] = (
                     f"{task}:"
                     f"{run.tasks[i].ci_type}({run.tasks[i].ci_subtype})"
