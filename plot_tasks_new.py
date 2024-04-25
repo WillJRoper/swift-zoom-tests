@@ -127,9 +127,9 @@ def make_task_hist_split(runs):
         # Sort each category
         labels = []
         counts = []
-        for i in range(len(labels_split)):
-            cat = np.array(labels_split[i])
-            cat_count = np.array(counts_split[i])
+        for j in range(len(labels_split)):
+            cat = np.array(labels_split[j])
+            cat_count = np.array(counts_split[j])
             sinds = np.argsort(-cat_count)
             labels.extend(cat[sinds])
             counts.extend(cat_count[sinds])
