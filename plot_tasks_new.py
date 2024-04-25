@@ -85,13 +85,13 @@ def make_task_hist_split(runs):
     ax.grid(True)
 
     # Combine all information into the labels
-    labels = {name: run.task_labels for name, run in runs.items()}
+    labels = {name: np.zeros(run.ntasks) for name, run in runs.items()}
     for name, run in runs.items():
-        for i in range(len(labels[name])):
+        for i in range(run.ntasks):
             if run.tasks[i].type == "pair":
-                labels[name] = "/".join(
+                labels[name][i] = "/".join(
                     [
-                        labels[name][i],
+                        run.tasks[i].type,
                         str(run.tasks[i].ci_type),
                         str(run.tasks[i].cj_type),
                         str(run.tasks[i].ci_subtype),
@@ -101,9 +101,9 @@ def make_task_hist_split(runs):
                     ]
                 )
             else:
-                labels[name] = "/".join(
+                labels[name][i] = "/".join(
                     [
-                        labels[name][i],
+                        run.tasks[i].type,
                         str(run.tasks[i].ci_type),
                         str(run.tasks[i].ci_subtype),
                         str(run.tasks[i].ci_depth),
