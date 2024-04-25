@@ -121,6 +121,7 @@ def make_task_hist_split(runs):
         labels_split = [[] for lab in _labels]
         counts_split = [[] for lab in _labels]
         for lab, c in zip(_labels, _counts):
+            print(sinds[lab.split(":")[0]])
             labels_split[sinds[lab.split(":")[0]]].append(lab)
             counts_split[sinds[lab.split(":")[0]]].append(c)
 
