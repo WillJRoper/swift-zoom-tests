@@ -498,11 +498,12 @@ def make_pair_mpoledist_plot(
 
 if __name__ == "__main__":
     # Define the base directory for the task files
-    base = "/snap8/scratch/dp004/dc-rope1/SWIFT/DMO/L0100N0169NBKG0064R5p0/"
+    # base = "/snap8/scratch/dp004/dc-rope1/SWIFT/DMO/L0100N0169NBKG0064R5p0/"
+    base = "/snap8/scratch/dp004/dc-rope1/SWIFT/DMO/L0100N0169NBKG0128R5p0/"
 
     # Define the branches
     branches = [
-        "zoom_tl_void_mm",
+        # "zoom_tl_void_mm",
         "zoom_neighbour_splitting",
     ]
 
