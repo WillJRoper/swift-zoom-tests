@@ -78,6 +78,77 @@ def make_mask(
     return mask
 
 
+def make_task_hist_time_split(runs):
+    fig = plt.figure(figsize=(12, 16))
+    ax = fig.add_subplot(111)
+    ax.set_xscale("log")
+    ax.grid(True)
+
+    # Combine all information into the labels
+    labels_dict = {
+        name: np.zeros(run.ntasks, dtype=object) for name, run in runs.items()
+    }
+    time_dict = {}
+    for name, run in runs.items():
+        for i in range(run.ntasks):
+            task = run.task_labels[i]
+            labels_dict[name][i] = f"{task}:{run.tasks[i].ci_type}"
+            if run.tasks[i].ci_subtype != "Regular":
+                labels_dict[name][i] += f"({run.tasks[i].ci_subtype})"
+            if "pair" in task:
+                labels_dict[name][i] += f"->{run.tasks[i].cj_type}"
+                if run.tasks[i].cj_subtype != "Regular":
+                    labels_dict[name][i] += f"({run.tasks[i].cj_subtype})"
+            labels_dict[name][i] += f"@{run.tasks[i].ci_depth}"
+            time_dict[labels_dict[name][i]] = (
+                time_dict.get(labels_dict[name][i], 0) + run.tasks[i].dt
+            )
+
+    for i, (name, run) in enumerate(runs.items()):
+        labels, counts = np.unique(labels_dict[name], return_counts=True)
+
+        # Sort the labels
+        if i == 0:
+            sinds = np.argsort(-counts)
+        labels = labels[sinds]
+        counts = counts[sinds]
+
+        # Unpack the times
+        times = np.array([time_dict[l] for l in labels])
+
+        # Calculate positions for horizontal bars
+        positions = np.arange(len(labels))
+
+        # Compute the width between labels
+        width = 0.8 / (len(runs) + 1)
+
+        # Create horizontal bar plot
+        bars = ax.barh(
+            positions + (i * width),
+            times,
+            height=0.75 / len(runs),
+            label=name,
+            alpha=0.7,
+        )
+
+    ax.set_yticks(np.arange(len(labels)) + 0.2)
+    ax.set_yticklabels(labels)
+    ax.invert_yaxis()
+
+    ax.set_xlabel("Time (ms)")
+
+    # Place the legend at the bottom of the plot
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=3)
+
+    # Define the filename
+    filename = "plots/task_time_comp_split.png"
+
+    fig.tight_layout()
+    fig.savefig(filename, bbox_inches="tight")
+
+    plt.close(fig)
+
+
 def make_task_hist_split(runs):
     fig = plt.figure(figsize=(12, 16))
     ax = fig.add_subplot(111)
@@ -460,6 +531,7 @@ if __name__ == "__main__":
             print(branch, test, runs[branch + "/" + test].get_tasks()[-1])
 
     make_task_hist_split(runs)
+    make_task_hist_time_split(runs)
 
     make_task_hist(runs)
     make_task_hist(runs, ci_type=1, cj_type=1)
