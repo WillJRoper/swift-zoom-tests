@@ -138,7 +138,7 @@ def make_task_hist_time_split(runs):
     ax.set_xlabel("Time (ms)")
 
     # Place the legend at the bottom of the plot
-    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=3)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.05), ncol=3)
 
     # Define the filename
     filename = "plots/task_time_comp_split.png"
@@ -202,7 +202,7 @@ def make_task_hist_split(runs):
     ax.set_xlabel("Count")
 
     # Place the legend at the bottom of the plot
-    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=3)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.05), ncol=3)
 
     # Define the filename
     filename = "plots/task_count_comp_split.png"
@@ -498,8 +498,8 @@ def make_pair_mpoledist_plot(
 
 if __name__ == "__main__":
     # Define the base directory for the task files
-    # base = "/snap8/scratch/dp004/dc-rope1/SWIFT/DMO/L0100N0169NBKG0064R5p0/"
-    base = "/snap8/scratch/dp004/dc-rope1/SWIFT/DMO/L0100N0169NBKG0128R5p0/"
+    base = "/snap8/scratch/dp004/dc-rope1/SWIFT/DMO/L0100N0169NBKG0064R5p0/"
+    # base = "/snap8/scratch/dp004/dc-rope1/SWIFT/DMO/L0100N0169NBKG0128R5p0/"
 
     # Define the branches
     branches = [
@@ -510,16 +510,12 @@ if __name__ == "__main__":
     # Define the test directories
     tests = [
         # "adaptive_nonperiodic_tasks",
-        "adaptive_periodic256_tasks",
+        # "adaptive_periodic256_tasks",
         "adaptive_periodic512_tasks",
+        "adaptive_periodic512_tasks_depth3",
+        "adaptive_periodic512_tasks_depthzoom",
         # "geometric_nonperiodic_tasks",
         # "geometric_periodic_tasks",
-    ]
-
-    # Define the non periodic tests
-    non_periodic_tests = [
-        "adaptive_nonperiodic_tasks",
-        "geometric_nonperiodic_tasks",
     ]
 
     # Parse all the task files
