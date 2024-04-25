@@ -94,7 +94,6 @@ def make_task_hist_split(runs):
             task = run.task_labels[i]
             types[task] = types.get(task, 0) + 1
             if "pair" in task:
-                print(task)
                 labels_dict[name][i] = (
                     f"{task}:"
                     f"{run.tasks[i].ci_type}({run.tasks[i].ci_subtype})"
@@ -121,8 +120,10 @@ def make_task_hist_split(runs):
 
         # Sort the labels and counts by counts in descending order
         sorted_indices = np.array([sinds[k.split(":")[0]] for k in labels])
+        print(name, labels, counts, sorted_indices)
         labels = labels[sorted_indices]
         counts = counts[sorted_indices]
+        print(name, labels, counts)
 
         # Calculate positions for horizontal bars
         positions = np.arange(len(labels))
