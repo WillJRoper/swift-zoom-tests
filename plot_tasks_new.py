@@ -88,7 +88,6 @@ def make_task_hist_split(runs):
     labels_dict = {
         name: np.zeros(run.ntasks, dtype=object) for name, run in runs.items()
     }
-    types = {}
     for name, run in runs.items():
         for i in range(run.ntasks):
             task = run.task_labels[i]
@@ -100,39 +99,15 @@ def make_task_hist_split(runs):
                 if run.tasks[i].cj_subtype != "Regular":
                     labels_dict[name][i] += f"({run.tasks[i].cj_subtype})"
             labels_dict[name][i] += f"@{run.tasks[i].ci_depth}"
-            types[labels_dict[name][i].split("@")[0]] = (
-                types.get(labels_dict[name][i].split("@")[0], 0) + 1
-            )
-
-    # Get the sorting indices based on types
-    types_arr = list(types.keys())
-    counts_arr = np.array(list(types.values()))
-    sinds_arr = np.argsort(-counts_arr)
-    type_sinds = {k: ind for k, ind in zip(types_arr, sinds_arr)}
 
     for i, (name, run) in enumerate(runs.items()):
-        _labels, _counts = np.unique(labels_dict[name], return_counts=True)
+        labels, counts = np.unique(labels_dict[name], return_counts=True)
 
-        # Sort the labels and counts by category
-        labels_split = [[] for lab in _labels]
-        counts_split = [[] for lab in _labels]
-        for lab, c in zip(_labels, _counts):
-            labels_split[type_sinds[lab.split("@")[0]]].append(lab)
-            counts_split[type_sinds[lab.split("@")[0]]].append(c)
-
-        # Sort each category
-        labels = []
-        counts = []
-        for j in range(len(labels_split)):
-            cat = np.array(labels_split[j])
-            cat_count = np.array(counts_split[j])
-            sinds = np.argsort(-cat_count)
-            labels.extend(cat[sinds])
-            counts.extend(cat_count[sinds])
-
-        # And convert to arrays
-        labels = np.array(labels)
-        counts = np.array(counts)
+        # Sort the labels
+        if i == 0:
+            sinds = np.argsort(-counts)
+        labels = labels[sinds]
+        counts = counts[sinds]
 
         # Calculate positions for horizontal bars
         positions = np.arange(len(labels))
