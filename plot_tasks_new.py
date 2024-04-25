@@ -96,16 +96,23 @@ def make_task_hist_split(runs):
             if "pair" in task:
                 labels_dict[name][i] = (
                     f"{task}:"
-                    f"{run.tasks[i].ci_type}({run.tasks[i].ci_subtype})"
+                    f"{run.tasks[i].ci_type}"
+                    f"({run.tasks[i].ci_subtype})"
+                    if run.tasks[i].ci_subtype != "Regular"
+                    else ""
                     f"@{run.tasks[i].ci_depth}->"
-                    f"{run.tasks[i].ci_type}({run.tasks[i].ci_subtype})"
-                    f"@{run.tasks[i].cj_depth}"
+                    f"{run.tasks[i].cj_type}"
+                    f"({run.tasks[i].cj_subtype})"
+                    if run.tasks[i].cj_subtype != "Regular"
+                    else "" f"@{run.tasks[i].cj_depth}"
                 )
             else:
                 labels_dict[name][i] = (
                     f"{task}:"
-                    f"{run.tasks[i].ci_type}({run.tasks[i].ci_subtype})"
-                    f"@{run.tasks[i].ci_depth}"
+                    f"{run.tasks[i].ci_type}"
+                    f"({run.tasks[i].ci_subtype})"
+                    if run.tasks[i].ci_subtype != "Regular"
+                    else "" f"@{run.tasks[i].ci_depth}"
                 )
 
     # Get the sorting indices based on types
