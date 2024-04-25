@@ -512,8 +512,8 @@ if __name__ == "__main__":
         # "adaptive_nonperiodic_tasks",
         # "adaptive_periodic256_tasks",
         "adaptive_periodic512_tasks",
-        "adaptive_periodic512_tasks_depth3",
-        "adaptive_periodic512_tasks_depthzoom",
+        "adaptive_periodic512_depth3",
+        "adaptive_periodic512_depthzoom",
         # "geometric_nonperiodic_tasks",
         # "geometric_periodic_tasks",
     ]
