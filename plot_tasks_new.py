@@ -85,7 +85,9 @@ def make_task_hist_split(runs):
     ax.grid(True)
 
     # Combine all information into the labels
-    labels = {name: np.zeros(run.ntasks) for name, run in runs.items()}
+    labels = {
+        name: np.zeros(run.ntasks, dtype=object) for name, run in runs.items()
+    }
     for name, run in runs.items():
         for i in range(run.ntasks):
             if run.tasks[i].type == "pair":
