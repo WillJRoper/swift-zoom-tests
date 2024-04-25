@@ -96,7 +96,8 @@ def make_task_hist_split(runs):
                         str(run.tasks[i].cj_type),
                         str(run.tasks[i].ci_subtype),
                         str(run.tasks[i].cj_subtype),
-                        str(run.tasks[i].depth),
+                        str(run.tasks[i].ci_depth),
+                        str(run.tasks[i].cj_depth),
                     ]
                 )
             else:
@@ -105,7 +106,7 @@ def make_task_hist_split(runs):
                         labels[name][i],
                         str(run.tasks[i].ci_type),
                         str(run.tasks[i].ci_subtype),
-                        str(run.tasks[i].depth),
+                        str(run.tasks[i].ci_depth),
                     ]
                 )
 
@@ -271,7 +272,7 @@ def make_task_hist_time_weighted(
         # Create horizontal bar plot
         bars = ax.barh(
             positions + (i * width),
-            counts / 1000,
+            counts,
             height=0.75 / len(runs),
             label=name,
             alpha=0.7,
