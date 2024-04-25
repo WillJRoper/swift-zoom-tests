@@ -472,6 +472,8 @@ if __name__ == "__main__":
             )
             print(branch, test, runs[branch + "/" + test].get_tasks()[-1])
 
+    make_task_hist_split(runs)
+
     make_task_hist(runs)
     make_task_hist(runs, ci_type=1, cj_type=1)
     make_task_hist(runs, ci_type=3, cj_type=3)
@@ -501,5 +503,3 @@ if __name__ == "__main__":
     make_pair_mpoledist_plot(runs, ci_type=1, cj_type=1)
     make_pair_mpoledist_plot(runs, ci_type=3, cj_type=3)
     make_pair_mpoledist_plot(runs, ci_type=1, cj_type=3)
-
-    make_task_hist_split(runs)
