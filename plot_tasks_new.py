@@ -93,27 +93,15 @@ def make_task_hist_split(runs):
         for i in range(run.ntasks):
             task = run.task_labels[i]
             types[task] = types.get(task, 0) + 1
+            labels_dict[name][i] = f"{task}:{run.tasks[i].ci_type}"
+            if run.tasks[i].ci_subtype != "Regular":
+                labels_dict[name][i] += f"({run.tasks[i].ci_subtype})"
+            labels_dict[name][i] += f"@{run.tasks[i].ci_depth}"
             if "pair" in task:
-                labels_dict[name][i] = (
-                    f"{task}:"
-                    f"{run.tasks[i].ci_type}"
-                    f"({run.tasks[i].ci_subtype})"
-                    if run.tasks[i].ci_subtype != "Regular"
-                    else ""
-                    f"@{run.tasks[i].ci_depth}->"
-                    f"{run.tasks[i].cj_type}"
-                    f"({run.tasks[i].cj_subtype})"
-                    if run.tasks[i].cj_subtype != "Regular"
-                    else "" f"@{run.tasks[i].cj_depth}"
-                )
-            else:
-                labels_dict[name][i] = (
-                    f"{task}:"
-                    f"{run.tasks[i].ci_type}"
-                    f"({run.tasks[i].ci_subtype})"
-                    if run.tasks[i].ci_subtype != "Regular"
-                    else "" f"@{run.tasks[i].ci_depth}"
-                )
+                labels_dict[name][i] += f"->{run.tasks[i].cj_type}"
+                if run.tasks[i].cj_subtype != "Regular":
+                    labels_dict[name][i] += f"({run.tasks[i].cj_subtype})"
+                labels_dict[name][i] += f"@{run.tasks[i].cj_depth}"
 
     # Get the sorting indices based on types
     types_arr = list(types.keys())
