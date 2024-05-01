@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import h5py
-from tqdm import tqdm
 import argparse
 import numpy as np
 from unyt import Mpc, km, s, Msun
@@ -37,7 +36,7 @@ def write_ics(
     """
     # Create simulation tag
     tag = (
-        f"L{int(boxsize):04}N{int(new_pos.shape[0]**(1/3)):04}"
+        f"L{int(boxsize[0]):04}N{int(new_pos.shape[0]**(1/3)):04}"
         f"NBKG{bkg_pos.shape[0]**(1/3):04}"
     )
 
