@@ -37,7 +37,7 @@ def write_ics(
     # Create simulation tag
     tag = (
         f"L{int(boxsize[0]):04}N{int(new_pos.shape[0]**(1/3)):04}"
-        f"NBKG{bkg_pos.shape[0]**(1/3):04}"
+        f"NBKG{int(bkg_pos.shape[0]**(1/3)):04}"
     )
 
     output_file = f"ics/{output_basename}_{tag}.hdf5"
