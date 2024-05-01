@@ -42,8 +42,6 @@ def write_ics(
 
     output_file = f"ics/{output_basename}_{tag}.hdf5"
 
-    print(cosmo_units)
-
     # Set up the IC writer
     ics = Writer(
         cosmo_units,
@@ -110,6 +108,8 @@ def make_ics_dmo(
     # Get the metadata
     meta = hdf["Header"]
     boxsize = meta.attrs["BoxSize"]
+
+    print(f"Time: {meta.attrs["Time"]}")
 
     # Read the dark matter coordinates, velocities and masses
     pos = hdf["PartType1"]["Coordinates"][...]
