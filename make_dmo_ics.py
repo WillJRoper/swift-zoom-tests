@@ -392,6 +392,8 @@ def write_ics(
 
     if uniform_bkg:
         output_file = f"ics/{output_basename}_{tag}_uniformbkg.hdf5"
+    elif downsample:
+        output_file = f"ics/{output_basename}_{tag}_downsampled.hdf5"
     else:
         output_file = f"ics/{output_basename}_{tag}.hdf5"
 
