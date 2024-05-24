@@ -390,14 +390,14 @@ def write_ics(
         f"L{int(boxsize):04}N{int(npart**(1/3)):04}NBKG{bkg_ngrid:04}R{r_str}"
     )
 
+    print(f"Writing {tag}")
+
     if uniform_bkg:
         output_file = f"ics/{output_basename}_{tag}_uniformbkg.hdf5"
     elif downsample:
         output_file = f"ics/{output_basename}_{tag}_downsampled.hdf5"
     else:
         output_file = f"ics/{output_basename}_{tag}.hdf5"
-
-    print(cosmo_units)
 
     # Set up the IC writer
     ics = Writer(
