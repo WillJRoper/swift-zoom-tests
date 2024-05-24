@@ -320,7 +320,7 @@ def make_bkg_downsampled(
         orig_positions,
         orig_velocities,
         orig_masses,
-        (bkg_ngrid / replicate) ** 3,
+        int((bkg_ngrid / replicate) ** 3),
     )
 
     # Carve out the zoom region
