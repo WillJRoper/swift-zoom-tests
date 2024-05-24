@@ -246,6 +246,113 @@ def make_bkg_gradient(boxsize, bkg_ngrid, rho, new_masses, region_rad):
     return bkg_pos, bkg_masses, bkg_vels, boxsize
 
 
+def _downsample_box(positions, velocities, masses, target_num_particles):
+    """
+    Downsample the particle distribution to a target number of particles.
+
+    By construction this will conserve mass but all background particles will
+    have the same mass.
+
+    Args:
+        positions (np.ndarray): The positions of the background particles.
+        velocities (np.ndarray): The velocities of the background particles.
+        masses (np.ndarray): The masses of the background particles.
+        target_num_particles (int): The target number of particles.
+
+    Returns:
+        np.ndarray: The downsampled positions of the background particles.
+        np.ndarray: The downsampled velocities of the background particles.
+        np.ndarray: The downsampled masses of the background particles.
+    """
+    if target_num_particles >= len(masses):
+        raise ValueError(
+            "Target number of particles must be less than "
+            "the original number of particles."
+        )
+
+    # Normalize the masses to use as probabilities for sampling
+    total_mass = np.sum(masses)
+    probabilities = masses / total_mass
+
+    # Randomly choose particles based on the probabilities
+    selected_indices = np.random.choice(
+        len(masses), size=target_num_particles, p=probabilities, replace=False
+    )
+
+    # Select the corresponding particles
+    downsampled_positions = positions[selected_indices]
+    downsampled_velocities = velocities[selected_indices]
+
+    return downsampled_positions, downsampled_velocities
+
+
+def make_bkg_downsampled(
+    orig_positions,
+    orig_velocities,
+    orig_masses,
+    bkg_ngrid,
+    rho,
+    boxsize,
+    new_masses,
+    replicate,
+    cent,
+    rad,
+):
+    """
+    Downsample the particle distribution to a target number of particles.
+
+    By construction this will conserve mass but all background particles will
+    have the same mass.
+
+    Args:
+        positions (np.ndarray): The positions of the background particles.
+        velocities (np.ndarray): The velocities of the background particles.
+        masses (np.ndarray): The masses of the background particles.
+        target_num_particles (int): The target number of particles.
+
+    Returns:
+        np.ndarray: The downsampled positions of the background particles.
+        np.ndarray: The downsampled velocities of the background particles.
+        np.ndarray: The downsampled masses of the background particles.
+    """
+    # Downsample the original box
+    downsampled_pos, downsampled_vels = _downsample_box(
+        orig_positions,
+        orig_velocities,
+        orig_masses,
+        (bkg_ngrid / replicate) ** 3,
+    )
+
+    # Carve out the zoom region
+    mask = np.linalg.norm(downsampled_pos - cent, axis=1) <= rad
+    bkg_pos = downsampled_pos[mask]
+    bkg_vels = downsampled_vels[mask]
+
+    # Replicate the downsampled positions and vels
+    for i in range(replicate):
+        for j in range(replicate):
+            for k in range(replicate):
+                if i == 0 and j == 0 and k == 0:
+                    continue
+
+                bkg_pos = np.concatenate(
+                    (
+                        bkg_pos,
+                        downsampled_pos
+                        + np.array([i * boxsize, j * boxsize, k * boxsize]),
+                    )
+                )
+                bkg_vels = np.concatenate((bkg_vels, downsampled_vels))
+
+    # Compute the total mass needed for the background particles
+    total_mass = (rho * boxsize**3 / 10**10) - np.sum(new_masses)
+
+    # Compute the mass of the background particles
+    bkg_masses = np.ones(bkg_pos.shape[0]) * (total_mass / bkg_pos.shape[0])
+
+    return bkg_pos, bkg_masses, bkg_vels
+
+
 def write_ics(
     output_basename,
     new_pos,
@@ -340,6 +447,7 @@ def make_ics_dmo(
     replicate,
     little_h=0.6777,
     uniform_bkg=True,
+    downsample=False,
     omega_m=0.307,
     rho_crit=2.77536627 * 10**11,
 ):
@@ -426,6 +534,19 @@ def make_ics_dmo(
         bkg_pos, bkg_masses, bkg_vels, boxsize = make_bkg_uniform(
             boxsize, bkg_ngrid, rho, new_masses, region_rad
         )
+    elif downsample:
+        bkg_pos, bkg_masses, bkg_vels = make_bkg_downsampled(
+            pos,
+            vels,
+            masses,
+            bkg_ngrid,
+            rho,
+            boxsize,
+            new_masses,
+            replicate,
+            max_pos,
+            region_rad,
+        )
     else:
         bkg_pos, bkg_masses, bkg_vels, boxsize = make_bkg_gradient(
             boxsize, bkg_ngrid, rho, new_masses, region_rad
@@ -493,6 +614,12 @@ if __name__ == "__main__":
         default=0.6777,
     )
     parser.add_argument(
+        "--downsample",
+        action="store_true",
+        help="Whether to downsample the particles to make the background.",
+        default=False,
+    )
+    parser.add_argument(
         "--uniform_bkg",
         action="store_true",
         help="Whether to use a uniform background.",
@@ -519,6 +646,7 @@ if __name__ == "__main__":
     input_file = args.input_file
     out_basename = args.output_basename
     replicate = args.replicate
+    downsample = args.downsample
     little_h = args.little_h
     uniform_bkg = args.uniform_bkg
     omega_m = args.omega_m
@@ -533,6 +661,7 @@ if __name__ == "__main__":
         replicate,
         little_h=little_h,
         uniform_bkg=uniform_bkg,
+        downsample=downsample,
         omega_m=omega_m,
         rho_crit=rho_crit,
     )
