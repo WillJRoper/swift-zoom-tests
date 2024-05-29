@@ -543,7 +543,7 @@ def make_ics_dmo(
             masses,
             bkg_ngrid,
             rho,
-            boxsize,
+            boxsize / replicate,
             new_masses,
             replicate,
             max_pos,
