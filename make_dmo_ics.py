@@ -401,9 +401,14 @@ def write_ics(
     else:
         output_file = f"ics/{output_basename}_{tag}.hdf5"
 
-    # Make sure our particles are all inside the volume
-    bkg_pos = (bkg_pos - 0.1 + boxsize) % boxsize
-    new_pos = (new_pos - 0.1 + boxsize) % boxsize
+    # Centre the box on the centre of mass of the high resolution region
+    centre_of_mass = np.sum(new_pos * new_masses[:, None], axis=0) / np.sum(
+        new_masses
+    )
+    new_pos -= centre_of_mass
+    new_pos = (new_pos + boxsize) % boxsize
+    bkg_pos -= centre_of_mass
+    bkg_pos = (bkg_pos + boxsize) % boxsize
 
     # Set up the IC writer
     ics = Writer(
