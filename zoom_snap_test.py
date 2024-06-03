@@ -3,6 +3,8 @@
 Example:
     $ python zoom_snap_test.py zoom_snap.hdf5
 """
+
+import numpy as np
 import argparse
 import h5py
 
@@ -16,6 +18,10 @@ def main():
     parser.add_argument("filename", help="Name of the file to test")
 
     args = parser.parse_args()
+
+    # Report the file and random seed
+    print(f"Testing file: {args.filename}")
+    print("Numpy random seed: ", np.random.get_state()[1][0])
 
     # Open the file
     hdf = h5py.File(args.filename, "r")
@@ -74,3 +80,25 @@ def main():
 
     # Check that we have extracted all the particles
     assert part1_count == nr_high_res, "Not all particles extracted"
+
+    # Extract a cell containing a specific
+    pos = origin + ((region_cdim * cell_width) * np.random.rand(3))
+
+    # Get the cell index
+    cell_ijk = np.floor((pos - origin) / cell_width).astype(int)
+    cid = cell_ijk[2] + region_cdim[2] * (
+        cell_ijk[1] + region_cdim[1] * cell_ijk[0]
+    )
+
+    # Get the particle offset and count
+    offset = parttype1_offset[cid]
+    count = parttype1_count[cid]
+
+    # Extract the particle data
+    part1 = hdf["PartType1"]["Coordinates"][offset : offset + count, :]
+
+    # Report what we found for pos
+    print(f"Extracted cell for pos: {pos}")
+    print(f"Cell origin: {origin + cell_ijk * cell_width}")
+    print(f"PartType1 count: {count}")
+    print(f"PartType1 offset: {offset}")
