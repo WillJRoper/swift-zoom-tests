@@ -416,6 +416,9 @@ def write_ics(
     # Write the ICs
     ics.write(output_file)
 
+    # Make sure our background particles are all inside the volume
+    bkg_pos = (bkg_pos + boxsize) % boxsize
+
     # Write the background separately
     hdf = h5py.File(output_file, "r+")
     grp = hdf.create_group("PartType2")
