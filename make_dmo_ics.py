@@ -408,7 +408,7 @@ def write_ics(
     # Set up the IC writer
     ics = Writer(
         cosmo_units,
-        np.array((boxsize, boxsize, boxsize)) * Mpc,
+        np.array((boxsize, boxsize, boxsize)) * 0.6777 * Mpc,
         dimension=3,
     )
 
