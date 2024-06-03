@@ -408,7 +408,7 @@ def write_ics(
     # Set up the IC writer
     ics = Writer(
         cosmo_units,
-        np.array((boxsize, boxsize, boxsize)) * 0.6777 * Mpc,
+        np.array((boxsize, boxsize, boxsize)) * Mpc,
         dimension=3,
     )
 
@@ -431,6 +431,8 @@ def write_ics(
         data=np.arange(0, bkg_masses.size, 1, dtype=int) + new_pos.shape[0],
         compression="gzip",
     )
+
+    print("Min and max positions:", bkg_pos.min(), bkg_pos.max())
 
     # Update the metadata
     num_part = hdf["Header"].attrs["NumPart_ThisFile"]
