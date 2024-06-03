@@ -345,7 +345,9 @@ def make_bkg_downsampled(
                 bkg_vels = np.concatenate((bkg_vels, downsampled_vels))
 
     # Compute the total mass needed for the background particles
-    total_mass = (rho * boxsize**3 / 10**10) - np.sum(new_masses)
+    total_mass = (rho * (boxsize * replicate) ** 3 / 10**10) - np.sum(
+        new_masses
+    )
 
     # Compute the mass of the background particles
     bkg_masses = np.ones(bkg_pos.shape[0]) * (total_mass / bkg_pos.shape[0])
