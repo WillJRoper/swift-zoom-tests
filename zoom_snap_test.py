@@ -33,7 +33,7 @@ def main():
     assert hdf["Header"].attrs["ZoomIn"] == 1, "Zoom flag not set"
 
     # Extract the cell metadata
-    cell_meta = hdf["Cells"]["Metadata"]
+    cell_meta = hdf["Cells"]["MetaData"]
     origin = cell_meta.attrs["Origin"]
     region_cdim = cell_meta.attrs["dimension"]
     nr_cells = cell_meta.attrs["nr_cells"]
