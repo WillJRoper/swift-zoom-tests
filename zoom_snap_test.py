@@ -102,3 +102,7 @@ def main():
     print(f"Cell origin: {origin + cell_ijk * cell_width}")
     print(f"PartType1 count: {count}")
     print(f"PartType1 offset: {offset}")
+
+
+if __name__ == "__main__":
+    main()
