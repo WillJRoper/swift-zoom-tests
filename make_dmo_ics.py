@@ -401,6 +401,10 @@ def write_ics(
     else:
         output_file = f"ics/{output_basename}_{tag}.hdf5"
 
+    # Make sure our particles are all inside the volume
+    bkg_pos = (bkg_pos - 0.1 + boxsize) % boxsize
+    new_pos = (new_pos - 0.1 + boxsize) % boxsize
+
     # Set up the IC writer
     ics = Writer(
         cosmo_units,
@@ -415,9 +419,6 @@ def write_ics(
 
     # Write the ICs
     ics.write(output_file)
-
-    # Make sure our background particles are all inside the volume
-    bkg_pos = (bkg_pos + boxsize) % boxsize
 
     # Write the background separately
     hdf = h5py.File(output_file, "r+")
