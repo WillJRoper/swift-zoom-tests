@@ -36,7 +36,7 @@ def main():
     cell_meta = hdf["Cells"]["Meta-data"]
     origin = cell_meta.attrs["Origin"]
     region_cdim = cell_meta.attrs["dimension"]
-    nr_cells = cell_meta.attrs["nr_cells"]
+    nr_cells = cell_meta.attrs["nr_cells"].item()
     cell_width = cell_meta.attrs["size"]
 
     # Get the cell particle offsets and counts
