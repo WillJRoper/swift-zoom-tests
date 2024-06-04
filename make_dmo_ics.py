@@ -406,9 +406,9 @@ def write_ics(
         new_masses
     )
     new_pos -= centre_of_mass
-    new_pos = (new_pos + boxsize) % boxsize
+    new_pos = (new_pos + boxsize / 2) % boxsize
     bkg_pos -= centre_of_mass
-    bkg_pos = (bkg_pos + boxsize) % boxsize
+    bkg_pos = (bkg_pos + boxsize / 2) % boxsize
 
     # Set up the IC writer
     ics = Writer(
