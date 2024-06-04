@@ -486,11 +486,11 @@ def make_ics_dmo(
 
     # Get the metadata
     meta = hdf["Header"]
-    boxsize = meta.attrs["BoxSize"] / little_h
+    boxsize = meta.attrs["BoxSize"]
 
     # Read the dark matter coordinates, velocities and masses
-    pos = hdf["PartType1"]["Coordinates"][...] / little_h
-    masses = hdf["PartType1"]["Masses"][...] / little_h
+    pos = hdf["PartType1"]["Coordinates"][...]
+    masses = hdf["PartType1"]["Masses"][...]
     vels = hdf["PartType1"]["Velocities"][...]
 
     print(f"Loaded {pos.shape[0]} dark matter particles.")
@@ -539,10 +539,6 @@ def make_ics_dmo(
         new_vels = vels
 
     print(f"Carved out {new_pos.shape[0]} particles.")
-
-    # Centre the zoom region
-    new_pos -= boxsize / replicate / 2
-    new_pos = (new_pos + boxsize / 2) % boxsize
 
     # Make the background particles
     if uniform_bkg:
