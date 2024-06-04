@@ -386,7 +386,7 @@ def write_ics(
         npart (int): The number of dark matter particles.
     """
     # Create radius string
-    r_str = str(region_rad).replace(".", "p")
+    r_str = str(region_rad / little_h).replace(".", "p")
 
     # Create simulation tag
     tag = f"L{int(boxsize / little_h):04}N{int(npart**(1/3)):04}NBKG{bkg_ngrid:04}R{r_str}"
