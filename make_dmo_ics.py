@@ -367,6 +367,7 @@ def write_ics(
     region_rad,
     bkg_ngrid,
     npart,
+    little_h,
 ):
     """
     Write the initial conditions to a file.
@@ -388,9 +389,7 @@ def write_ics(
     r_str = str(region_rad).replace(".", "p")
 
     # Create simulation tag
-    tag = (
-        f"L{int(boxsize):04}N{int(npart**(1/3)):04}NBKG{bkg_ngrid:04}R{r_str}"
-    )
+    tag = f"L{int(boxsize / little_h):04}N{int(npart**(1/3)):04}NBKG{bkg_ngrid:04}R{r_str}"
 
     print(f"Writing {tag}")
 
@@ -578,6 +577,7 @@ def make_ics_dmo(
         region_rad,
         bkg_ngrid,
         new_pos.shape[0],
+        little_h,
     )
 
 
